@@ -1,0 +1,28 @@
+.navigation-bar {
+  height: 50px;
+  width: 101%;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  background-color: darkslateblue;
+  display: flex;
+}
+
+.logo-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  margin-left: 8%;
+}
+
+.tstimer-logo {
+  height: 40px;
+}
+
+.buttons {
+  align-items: right;
+  display: flex;
+  margin-right: 8%;
+}

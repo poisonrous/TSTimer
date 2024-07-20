@@ -1,0 +1,15 @@
+input[type='number'] {
+  height: 80px;
+  min-width: 12.2%;
+  max-width: 30%;
+  font-size: 50px;
+  text-align: center;
+}
+
+input:first-of-type {
+  border-radius: 40px 0 0 40px;
+}
+
+input:last-of-type {
+  border-radius: 0 40px 40px 0;
+}

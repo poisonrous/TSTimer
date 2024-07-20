@@ -1,0 +1,16 @@
+.playlist-info-container {
+  display: flex;
+  align-items: center;
+}
+
+.playlist-info {
+  opacity: 100%;
+  text-align: left;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.playlist {
+
+}
+

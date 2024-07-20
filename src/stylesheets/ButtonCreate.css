@@ -1,0 +1,23 @@
+.button-create {
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+button {
+  height: 50px;
+  width: 200px;
+  border-radius: 50px;
+  background-color: darkslateblue;
+  color: white;
+  font-size: 25px;
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: mediumpurple;
+}

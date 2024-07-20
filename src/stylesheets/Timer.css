@@ -1,0 +1,8 @@
+.timer {
+  height: 80px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+}

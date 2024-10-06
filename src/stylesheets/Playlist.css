@@ -1,3 +1,10 @@
+.playlist-container {
+  width: 100%;
+  display: block;
+  align-items: center;
+  justify-items: center;
+}
+
 .playlist-info-container {
   display: flex;
   align-items: center;
@@ -11,6 +18,9 @@
 }
 
 .playlist {
-
+  display: block;
+  align-items: center;
+  justify-items: center;
 }
+
 

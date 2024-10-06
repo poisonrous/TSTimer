@@ -6,8 +6,9 @@ import {
 } from "react-router-dom";
 import Home from './pages/home'
 import NavigationBar from "./components/NavigationBar";
+import Footer from "./components/Footer"
 import About from "./pages/about";
-
+import Faq from "./pages/faq";
 function App() {
 
   return (
@@ -16,7 +17,9 @@ function App() {
         <Routes>
           <Route exact path="/" element={<Home />} />
           <Route exact path="/about" element={<About />} />
+          <Route exact path="/faq" element={<Faq />} />
         </Routes>
+        <Footer />
       </Router>
   );
 }

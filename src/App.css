@@ -1,8 +1,21 @@
 html, body {
-  background-color: #e2d9f6;
+  background-color: #e3dcf3;
 }
 
-h1 {
+html, body, #root
+{min-height: 100vh !important;
+position: absolute;
+top: 0;
+left: 0;
+}
+
+.About, .Faq, .App {
+  padding-bottom: 40px;
+}
+
+
+h1, h2, h3 {
+  font-family: Segoe UI, sans-serif;
   text-align: center;
   color: darkslateblue;
 }
@@ -11,5 +24,19 @@ p {
   text-align: center;
   color: darkslateblue;
   font-size: 20px;
-  opacity: 50%;
+  font-family: Segoe UI, sans-serif;
+  opacity: 60%;
+  white-space: pre-wrap;
+}
+
+#root > footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+a {
+  color: darkslateblue;
+  text-decoration: none;
+  font-weight: bold;
 }

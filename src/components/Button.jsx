@@ -1,7 +1,6 @@
 import '../stylesheets/Button.css'
 
 function Button({ text, handleClick }){
-//TO-DO: add the save class to change the color of the button
   const isSave = value => {
     if(text=='Save') return true;
   }

@@ -1,0 +1,38 @@
+.question-container {
+  width: 80%;
+  position: relative;
+  left: 10%;
+  background-color: #e8e8e8;
+  box-shadow: 2px 2px 2px 2px mediumpurple;
+  margin-bottom: 20px;
+}
+
+.question {
+  background-color: darkslateblue;
+  display: flex;
+  align-items: center;
+}
+
+.question h2 {
+  color: white;
+}
+
+.question-text, .answer-text {
+  margin-left: 20px;
+}
+
+.answer-text {
+  text-align: left;
+  padding-bottom: 20px;
+}
+
+.fa-question-circle {
+  font-size: 30px;
+  color: white;
+  position: absolute;
+  right: 20px;
+}
+
+.question:hover {
+  cursor: pointer;
+}

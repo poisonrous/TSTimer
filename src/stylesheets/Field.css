@@ -1,7 +1,9 @@
-input[type='number'] {
+
+
+.field {
   height: 80px;
-  min-width: 12.2%;
-  max-width: 30%;
+  width: 30%;
+  max-width: 170px;
   font-size: 50px;
   text-align: center;
 }

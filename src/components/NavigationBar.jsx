@@ -20,15 +20,21 @@ function NavigationBar() {
           </a>
         </div>
         <div className='buttons'>
-          <NavLink to="/">
+          <NavLink to="/" className='nav'>
             <Button
                 text='Home'
                 handleClick={emptyClick}
             />
           </NavLink>
-          <NavLink to="/about">
+          <NavLink to="/about" className='nav'>
             <Button
                 text='About'
+                handleClick={emptyClick}
+            />
+          </NavLink>
+          <NavLink to="/faq" className='nav'>
+            <Button
+                text='FAQ'
                 handleClick={emptyClick}
             />
           </NavLink>

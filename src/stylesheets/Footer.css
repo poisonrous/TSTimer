@@ -1,0 +1,14 @@
+footer {
+  width: 100%;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+}
+
+footer > a, footer > p {
+  font-size: 15px !important;
+  opacity: 0.5;
+  text-decoration: none;
+  margin: 0;
+  padding: 0;
+}

@@ -1,5 +1,6 @@
 import Question from '../components/Question'
 import { useState } from 'react';
+import App from './app'
 
 const Faq = () => {
 
@@ -18,7 +19,7 @@ const Faq = () => {
   ];
 
   return (
-
+      <App>
       <div className='Faq'>
         <h1>Frequently Asked Questions</h1>
         <p>If your question isn't here, <a href={'mailto: abreurosalinda@gmail.com'}>contact me</a> and I'll be happy to answer!</p>
@@ -32,6 +33,7 @@ const Faq = () => {
             />
         ))}
       </div>
+      </App>
   );
 }
 

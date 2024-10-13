@@ -7,6 +7,9 @@
   justify-content: center;
   background-color: darkslateblue;
   display: flex;
+  position: fixed; /* Hacer que la barra de navegación sea fija */
+  top: 0;
+  z-index: 1000; /* Asegurar que la barra de navegación esté por encima de otros elementos */
 }
 
 .logo-container {
@@ -29,4 +32,64 @@
 
 .nav {
   text-decoration: none;
+}
+
+/* Estilos para el menú*/
+.bm-burger-button {
+  position: absolute;
+  width: 36px;
+  height: 30px;
+  right: 36px;
+  top: 10px;
+}
+
+.bm-burger-bars {
+  background: #373a47;
+}
+
+.bm-cross-button {
+  height: 24px;
+  width: 24px;
+  display: none;
+}
+
+.bm-cross {
+  background: #bdc3c7;
+}
+
+.bm-menu {
+  font-size: 1.15em;
+}
+
+.bm-morph-shape {
+  fill: #333;
+}
+
+.bm-item-list {
+  position: absolute;
+  color: #b8b7ad;
+  padding: 0.8em;
+  display: block;
+  right: 0;
+  top: 50px;
+  background-color: rgba(72, 61, 139, 0.7);
+  width: 150px;
+}
+
+.bm-item-list a {
+  text-decoration: none;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.bm-overlay {
+  display: none;
+}
+
+.bm-menu,
+.bm-item-list,
+.bm-menu-wrap {
+  height: fit-content !important;
+  position: fixed !important;
+  margin: ;
 }

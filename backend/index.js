@@ -4,9 +4,12 @@ const cors = require('cors');
 const SpotifyWebApi = require('spotify-web-api-node');
 const morgan = require('morgan');
 const session = require('express-session');
+const connectDB = require('./db');
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+connectDB();
 
 app.use(session({
   secret: '767254632',
@@ -25,6 +28,10 @@ const spotifyApi = new SpotifyWebApi({
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
+
+//Rutas de la db
+app.use('/api/visitors', require('./routes/visitorRoutes'));
+app.use('/api/playlists', require('./routes/playlistRoutes'));
 
 // Ruta para token de acceso
 app.get('/api/spotify/token', async (req, res) => {

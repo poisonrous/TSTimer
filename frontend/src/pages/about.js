@@ -1,7 +1,10 @@
 import '../stylesheets/About.css'
 import { FaSpotify, FaReact, FaNode } from 'react-icons/fa';
+import App from './app'
+
 const About = () => {
   return (
+      <App>
       <div className='About'>
         <h1>About this project</h1>
         <p>This project was made as an assignment for the Fundamentals of Web Applications course at UCLA
@@ -35,6 +38,7 @@ const About = () => {
           </div>
         </div>
       </div>
+      </App>
   );
 }
 

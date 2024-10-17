@@ -1,16 +1,14 @@
 import './App.css';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
-import Home from './pages/home'
-import NavigationBar from "./components/NavigationBar";
-import Footer from "./components/Footer"
-import About from "./pages/about";
-import Faq from "./pages/faq";
-function App() {
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/home';
+import NavigationBar from './components/NavigationBar';
+import Footer from './components/Footer';
+import About from './pages/about';
+import Faq from './pages/faq';
+import { useEffect, useState } from 'react';
 
+function App() {
+  console.log(new Date());
   return (
       <Router>
         <NavigationBar />

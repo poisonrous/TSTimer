@@ -11,10 +11,14 @@
   background-color: darkslateblue;
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Añadido para espaciar elementos */
+  padding-right: 20px; /* Añadido para dar espacio al icono */
 }
 
 .question h2 {
   color: white;
+  flex-grow: 1; /* Permite que el texto ocupe el espacio disponible */
+  text-align: left;
 }
 
 .question-text, .answer-text {
@@ -29,8 +33,9 @@
 .fa-question-circle {
   font-size: 30px;
   color: white;
-  position: absolute;
-  right: 20px;
+  position: relative; /* Cambiado de absolute a relative */
+  right: 0; /* Asegura que el icono se mantenga al final */
+  margin-left: auto; /* Empuja el icono al borde derecho */
 }
 
 .question:hover {

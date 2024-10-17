@@ -204,7 +204,7 @@ const Home = () => {
 
   return (
 <App>
-      <div className='Home'>
+      <div className={`Home ${showPlaylist ? 'with-playlist' : ''}`}>
         <h1>Select the length of your playlist</h1>
         <Timer />
         <p>Any blank field will be assume to contain 0</p>

@@ -9,6 +9,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 const Visit = require('./models/Visit');
 const logVisit = require('./middleware/logVisit');
+const endVisit = require('./middleware/endVisit');
 
 
 connectDB();
@@ -34,6 +35,25 @@ app.use(express.json());
 // Ruta para registrar visitas
 app.post('/api/log-visit', logVisit, (req, res) => {
   res.status(200).json({ message: 'Visita registrada con éxito' });
+});
+
+//Ruta para terminar visita
+app.post('/api/end-visit', async (req, res) => {
+  if (req.session.visitId && req.session.visitStart) {
+    const visitEnd = Date.now();
+    const visitDuration = (visitEnd - req.session.visitStart) / 1000;
+
+    try {
+      await Visit.findByIdAndUpdate(req.session.visitId, { duration: visitDuration });
+      console.log('Duración de la visita actualizada:', visitDuration, 'segundos');
+      res.status(200).json({ message: 'Duración de la visita actualizada' });
+    } catch (err) {
+      console.error('Error al actualizar la duración de la visita:', err);
+      res.status(500).json({ error: 'Error al actualizar la duración de la visita' });
+    }
+  } else {
+    res.status(400).json({ message: 'No hay visita activa en la sesión' });
+  }
 });
 
 // Ruta para token de acceso

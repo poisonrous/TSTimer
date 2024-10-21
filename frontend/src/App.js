@@ -13,13 +13,26 @@ function App() {
 
   useEffect(() => {
     if (!accessToken) {
-      console.log('Llamada a /api/log-visit');
       fetch('/api/log-visit', { method: 'POST' })
           .then(response => response.json())
           .then(data => console.log(data.message))
           .catch(error => console.error('Error:', error));
     }
-  }, [accessToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Añade este efecto
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      navigator.sendBeacon('/api/end-visit', JSON.stringify({}));
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   return (
       <Router>

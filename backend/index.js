@@ -5,9 +5,11 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const morgan = require('morgan');
 const session = require('express-session');
 const connectDB = require('./db');
-
 const app = express();
 const port = process.env.PORT || 5000;
+const Visit = require('./models/Visit');
+const logVisit = require('./middleware/logVisit');
+
 
 connectDB();
 
@@ -29,9 +31,10 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
-//Rutas de la db
-app.use('/api/visitors', require('./routes/visitorRoutes'));
-app.use('/api/playlists', require('./routes/playlistRoutes'));
+// Ruta para registrar visitas
+app.post('/api/log-visit', logVisit, (req, res) => {
+  res.status(200).json({ message: 'Visita registrada con éxito' });
+});
 
 // Ruta para token de acceso
 app.get('/api/spotify/token', async (req, res) => {
@@ -60,7 +63,6 @@ app.get('/callback', async (req, res) => {
     const { access_token, refresh_token } = data.body;
     spotifyApi.setAccessToken(access_token);
     spotifyApi.setRefreshToken(refresh_token);
-
     if (req.session) {
       req.session.accessToken = access_token;
       req.session.refreshToken = refresh_token;
@@ -91,22 +93,17 @@ app.get('/profile', async (req, res) => {
 app.post('/api/save-playlist', async (req, res) => {
   const { playlistName, description, tracks } = req.body;
   const accessToken = req.headers.authorization?.split(' ')[1];
-
   try {
     if (!tracks || tracks.length === 0) {
       throw new Error('La lista de canciones está vacía o no se proporcionó.');
     }
-
     if (!accessToken) {
       throw new Error('No token provided.');
     }
-
     spotifyApi.setAccessToken(accessToken); // Usar el token de acceso del usuario
-
     const playlist = await spotifyApi.createPlaylist(playlistName, { 'description': description, 'public': true });
     const trackUris = tracks.map(track => `spotify:track:${track.id}`);
     const addTracksResponse = await spotifyApi.addTracksToPlaylist(playlist.body.id, trackUris);
-
     res.json({ message: 'Playlist guardada con éxito', playlistId: playlist.body.id });
   } catch (error) {
     console.error('Error al guardar la playlist:', error);
@@ -121,12 +118,10 @@ app.post('/api/playlist', async (req, res) => {
   try {
     const token = await spotifyApi.clientCredentialsGrant();
     spotifyApi.setAccessToken(token.body['access_token']);
-
     let allTracks = [];
     let offset = 0;
     let limit = 100;
     let total = 0;
-
     // Obtener todas las canciones de la playlist de referencia
     do {
       const response = await spotifyApi.getPlaylistTracks(playlistId, { limit, offset });
@@ -142,24 +137,19 @@ app.post('/api/playlist', async (req, res) => {
       offset += limit;
       total = response.body.total;
     } while (offset < total);
-
     let bestCombination = null;
     let bestDurationDifference = Number.MAX_SAFE_INTEGER;
-
     for (let i = 0; i < 10; i++) {
       const shuffledTracks = shuffleArray([...allTracks]);
       const { combination, durationDifference } = findClosestSum(shuffledTracks, tiempo);
-
       if (durationDifference < bestDurationDifference) {
         bestCombination = combination;
         bestDurationDifference = durationDifference;
       }
-
       if (durationDifference === 0) {
         break;  // Terminar si se encuentra una combinación exacta
       }
     }
-
     res.json(bestCombination);
   } catch (error) {
     console.error('Error al obtener canciones de la playlist:', error);
@@ -181,9 +171,7 @@ function findClosestSum(tracks, targetDuration) {
   let start = 0, end = 0;
   let currSum = tracks[0].duracion, minDiff = Number.MAX_SAFE_INTEGER;
   let bestStart = 0, bestEnd = 0;
-
   minDiff = Math.abs(currSum - targetDuration);
-
   while (end < tracks.length - 1) {
     if (currSum < targetDuration) {
       end++;
@@ -198,7 +186,6 @@ function findClosestSum(tracks, targetDuration) {
       bestEnd = end;
     }
   }
-
   // Añadir más canciones de la lista inicial si es necesario
   while (currSum < targetDuration && end < tracks.length - 1) {
     end++;
@@ -208,7 +195,6 @@ function findClosestSum(tracks, targetDuration) {
       bestEnd = end;
     }
   }
-
   return {
     combination: tracks.slice(bestStart, bestEnd + 1),
     durationDifference: minDiff

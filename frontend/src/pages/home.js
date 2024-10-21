@@ -19,6 +19,7 @@ const Home = () => {
   let input;
 
   useEffect(() => {
+
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('access_token');
 
@@ -123,12 +124,6 @@ const Home = () => {
   };
 
   const handleClickSave = () => {
-    localStorage.setItem('tracks', JSON.stringify(songs));
-    localStorage.setItem('playlistSaved', 'false'); // Restablecer estado de guardado
-    window.location.href = 'http://localhost:5000/login'; // Redirigir a la autenticación
-  };
-
-  const savePlaylist = () => {
     localStorage.setItem('tracks', JSON.stringify(songs));
     localStorage.setItem('playlistSaved', 'false'); // Restablecer estado de guardado
     window.location.href = 'http://localhost:5000/login'; // Redirigir a la autenticación

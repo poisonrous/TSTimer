@@ -5,10 +5,22 @@ import NavigationBar from './components/NavigationBar';
 import Footer from './components/Footer';
 import About from './pages/about';
 import Faq from './pages/faq';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 function App() {
-  console.log(new Date());
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessToken = urlParams.get('access_token');
+
+  useEffect(() => {
+    if (!accessToken) {
+      console.log('Llamada a /api/log-visit');
+      fetch('/api/log-visit', { method: 'POST' })
+          .then(response => response.json())
+          .then(data => console.log(data.message))
+          .catch(error => console.error('Error:', error));
+    }
+  }, [accessToken]);
+
   return (
       <Router>
         <NavigationBar />

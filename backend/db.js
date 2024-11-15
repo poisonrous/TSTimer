@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
+require('dotenv').config(); // Cargar las variables de entorno desde el archivo .env
 
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
-      tls: true,
-      ciphers: 'ECDHE-ECDSA-AES256-GCM-SHA384'
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
-    console.log('MongoDB connected...');
-  } catch (err) {
-    console.error(err.message);
+    console.log('MongoDB conectado.');
+  } catch (error) {
+    console.error('Error al conectar a MongoDB:', error);
     process.exit(1);
   }
 };

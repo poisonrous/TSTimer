@@ -10,6 +10,11 @@ const port = process.env.PORT || 5000;
 const Visit = require('./models/Visit');
 const logVisit = require('./middleware/logVisit');
 const endVisit = require('./middleware/endVisit');
+const Track = require('./models/Track');
+const Playlist = require('./models/Playlist');
+const User = require('./models/User');
+const login = require('./middleware/auth');
+const bcrypt = require('bcrypt');
 
 
 connectDB();
@@ -32,6 +37,18 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+//Ruta para entrar al administrador
+app.post('/api/admin-login', login);
+
+// Ruta para verificar la autenticación del usuario
+app.get('/api/check-auth', (req, res) => {
+  console.log(req.session);
+  if (req.session.user) {
+    res.status(200).json({
+      isAuthenticated: true }); }
+  else { res.status(200).json({ isAuthenticated: false }); }
+});
+
 // Ruta para registrar visitas
 app.post('/api/log-visit', logVisit, (req, res) => {
   res.status(200).json({ message: 'Visita registrada con éxito' });
@@ -42,7 +59,6 @@ app.post('/api/end-visit', async (req, res) => {
   if (req.session.visitId && req.session.visitStart) {
     const visitEnd = Date.now();
     const visitDuration = (visitEnd - req.session.visitStart) / 1000;
-
     try {
       await Visit.findByIdAndUpdate(req.session.visitId, { duration: visitDuration });
       console.log('Duración de la visita actualizada:', visitDuration, 'segundos');
@@ -108,11 +124,67 @@ app.get('/profile', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener datos del usuario' });
   }
 });
+//Ruta para guardar la playlist en la base de datos
+app.post('/api/post-playlist', async (req, res) => {
+  const { playlistName, description, tracks, requestedDuration, actualDuration } = req.body;
+  console.log(req.session);
+  //TODO NO SE ESTÁ OBTENIENDO EL ID DE LA VISITA
+  const visitId = req.session.visitId;
+  console.log('Datos recibidos:', { playlistName, description, tracks, requestedDuration, actualDuration, visitId });
+
+  if (!visitId) {
+    return res.status(400).json({ message: 'No se ha registrado una visita.' });
+  }
+
+  try {
+    const trackIds = [];
+
+    for (const track of tracks) {
+      console.log('Procesando track:', track);
+      let existingTrack = await Track.findOne({ spotifyId: track.spotifyId });
+
+      if (!existingTrack) {
+        const newTrack = new Track({
+          name: track.name,
+          artist: track.artist,
+          duration: track.duration,
+          src: track.src,
+          preview_url: track.preview_url,
+          spotifyId: track.spotifyId
+        });
+        existingTrack = await newTrack.save();
+        console.log('Nuevo track guardado:', existingTrack);
+      } else {
+        console.log('Track existente:', existingTrack);
+      }
+
+      trackIds.push(existingTrack._id);
+    }
+
+    const newPlaylist = new Playlist({
+      name: playlistName,
+      description: description,
+      tracks: trackIds,
+      requestedDuration: requestedDuration,
+      actualDuration: actualDuration,
+      visit: visitId // Asociamos la visita
+    });
+
+    const savedPlaylist = await newPlaylist.save();
+    console.log('Playlist registrada con éxito:', savedPlaylist);
+
+    res.status(201).json({ message: 'Playlist registrada con éxito', playlistId: savedPlaylist._id });
+  } catch (error) {
+    console.error('Error al registrar la playlist:', error);
+    res.status(500).json({ error: `Error al registrar la playlist: ${error.message}` });
+  }
+});
 
 // Ruta para guardar la playlist en la cuenta del usuario
 app.post('/api/save-playlist', async (req, res) => {
   const { playlistName, description, tracks } = req.body;
   const accessToken = req.headers.authorization?.split(' ')[1];
+
   try {
     if (!tracks || tracks.length === 0) {
       throw new Error('La lista de canciones está vacía o no se proporcionó.');
@@ -120,16 +192,20 @@ app.post('/api/save-playlist', async (req, res) => {
     if (!accessToken) {
       throw new Error('No token provided.');
     }
-    spotifyApi.setAccessToken(accessToken); // Usar el token de acceso del usuario
-    const playlist = await spotifyApi.createPlaylist(playlistName, { 'description': description, 'public': true });
-    const trackUris = tracks.map(track => `spotify:track:${track.id}`);
-    const addTracksResponse = await spotifyApi.addTracksToPlaylist(playlist.body.id, trackUris);
+
+    spotifyApi.setAccessToken(accessToken);
+
+    const playlist = await spotifyApi.createPlaylist(playlistName, { description: description, public: true });
+    const trackUris = tracks.map(track => `spotify:track:${track.spotifyId}`);
+    await spotifyApi.addTracksToPlaylist(playlist.body.id, trackUris);
+
     res.json({ message: 'Playlist guardada con éxito', playlistId: playlist.body.id });
   } catch (error) {
     console.error('Error al guardar la playlist:', error);
     res.status(500).json({ error: `Error al guardar la playlist: ${error.message}` });
   }
 });
+
 
 // Ruta para crear una playlist
 app.post('/api/playlist', async (req, res) => {
@@ -146,10 +222,10 @@ app.post('/api/playlist', async (req, res) => {
     do {
       const response = await spotifyApi.getPlaylistTracks(playlistId, { limit, offset });
       const tracks = response.body.items.map(item => ({
-        id: item.track.id,
-        nombre: item.track.name,
-        artista: item.track.artists[0].name,
-        duracion: item.track.duration_ms / 1000,
+        spotifyId: item.track.id,
+        name: item.track.name,
+        artist: item.track.artists[0].name,
+        duration: item.track.duration_ms / 1000,
         src: item.track.album.images[0].url,
         preview_url: item.track.preview_url,
       }));
@@ -189,15 +265,15 @@ function shuffleArray(array) {
 // Función para encontrar la mejor combinación de canciones
 function findClosestSum(tracks, targetDuration) {
   let start = 0, end = 0;
-  let currSum = tracks[0].duracion, minDiff = Number.MAX_SAFE_INTEGER;
+  let currSum = tracks[0].duration, minDiff = Number.MAX_SAFE_INTEGER;
   let bestStart = 0, bestEnd = 0;
   minDiff = Math.abs(currSum - targetDuration);
   while (end < tracks.length - 1) {
     if (currSum < targetDuration) {
       end++;
-      currSum += tracks[end].duracion;
+      currSum += tracks[end].duration;
     } else {
-      currSum -= tracks[start].duracion;
+      currSum -= tracks[start].duration;
       start++;
     }
     if (Math.abs(currSum - targetDuration) < minDiff) {
@@ -209,7 +285,7 @@ function findClosestSum(tracks, targetDuration) {
   // Añadir más canciones de la lista inicial si es necesario
   while (currSum < targetDuration && end < tracks.length - 1) {
     end++;
-    currSum += tracks[end].duracion;
+    currSum += tracks[end].duration;
     if (Math.abs(currSum - targetDuration) < minDiff) {
       minDiff = Math.abs(currSum - targetDuration);
       bestEnd = end;

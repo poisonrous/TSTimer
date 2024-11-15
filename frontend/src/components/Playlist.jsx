@@ -17,9 +17,9 @@ function Playlist(props) {
               <Track
                   key={index}
                   cover={track.src}
-                  name={track.nombre}
-                  artist={track.artista}
-                  length={Math.floor(track.duracion / 60) + ':' + ('0' + Math.floor(track.duracion % 60)).slice(-2)}
+                  name={track.name}
+                  artist={track.artist}
+                  length={Math.floor(track.duration / 60) + ':' + ('0' + Math.floor(track.duration % 60)).slice(-2)}
                   previewUrl={track.preview_url}
               />
           ))}

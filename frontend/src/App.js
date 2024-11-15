@@ -1,30 +1,42 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/home';
 import NavigationBar from './components/NavigationBar';
 import Footer from './components/Footer';
 import About from './pages/about';
 import Faq from './pages/faq';
-import { useEffect } from 'react';
+import Admin from './pages/admin';
+import { useEffect, useState } from 'react';
+
+function NavigationBarWrapper() {
+  const location = useLocation();
+
+  if (location.pathname === '/r-admin') {
+    return null;
+  }
+
+  return <NavigationBar />;
+}
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const accessToken = urlParams.get('access_token');
 
+
   useEffect(() => {
-    if (!accessToken) {
-      fetch('/api/log-visit', { method: 'POST' })
+    if (!accessToken && !isAuthenticated) { // Solo registrar visita si el usuario no está autenticado
+      fetch('/api/log-visit', { method: 'POST', credentials: 'include' })
           .then(response => response.json())
           .then(data => console.log(data.message))
           .catch(error => console.error('Error:', error));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticated]);
 
-  // Añade este efecto
   useEffect(() => {
     const handleBeforeUnload = (event) => {
-      navigator.sendBeacon('/api/end-visit', JSON.stringify({}));
+      navigator.sendBeacon('/api/end-visit', JSON.stringify({}), { credentials: 'include' });
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -36,11 +48,12 @@ function App() {
 
   return (
       <Router>
-        <NavigationBar />
+        <NavigationBarWrapper />
         <Routes>
           <Route exact path="/" element={<Home />} />
           <Route exact path="/about" element={<About />} />
           <Route exact path="/faq" element={<Faq />} />
+          <Route exact path="/r-admin" element={<Admin />} />
         </Routes>
         <Footer />
       </Router>

@@ -124,6 +124,89 @@ app.get('/profile', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener datos del usuario' });
   }
 });
+
+// Ruta para obtener estadísticas
+app.get('/api/stats', async (req, res) => {
+  const { period } = req.query;
+  let startDate;
+
+  // Determinar la fecha de inicio en función del período seleccionado
+  switch (period) {
+    case 'Last 4 weeks':
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 28);
+      break;
+    case 'Last 6 months':
+      startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - 6);
+      break;
+    case 'All time':
+      startDate = new Date(0); // Fecha de inicio muy antigua
+      break;
+    default:
+      return res.status(400).json({ message: 'Periodo no válido' });
+  }
+
+  try {
+    const visitors = await Visit.countDocuments({ timestamp: { $gte: startDate } });
+    const playlistsCreated = await Playlist.countDocuments({ createdAt: { $gte: startDate } });
+
+    const minutesOfMusic = await Playlist.aggregate([
+      { $match: { createdAt: { $gte: startDate } } },
+      { $group: { _id: null, totalDuration: { $sum: '$actualDuration' } } }
+    ]);
+
+    const accuracy = await Playlist.aggregate([
+      { $match: { createdAt: { $gte: startDate } } },
+      { $group: {
+          _id: null,
+          averageAccuracy: {
+            $avg: {
+              $min: [
+                {
+                  $multiply: [
+                    {
+                      $divide: [
+                        "$actualDuration",
+                        "$requestedDuration"
+                      ]
+                    },
+                    100
+                  ]
+                },
+                100
+              ]
+            }
+          }
+        }}
+    ]);
+
+    const countriesData = await Visit.aggregate([
+      { $match: { timestamp: { $gte: startDate } } },
+      { $group: { _id: "$country", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 5 }
+    ]);
+
+    const statsData = {
+      visitors,
+      playlistsCreated,
+      minutesOfMusic: minutesOfMusic[0] ? Math.floor(minutesOfMusic[0].totalDuration / 60) : 0,
+      countries: countriesData.map(country => ({
+        label: country._id,
+        value: country.count
+      })),
+      accuracy: accuracy[0] ? Math.min(accuracy[0].averageAccuracy.toFixed(2), 100) : 0
+    };
+
+    res.json(statsData);
+  } catch (error) {
+    console.error('Error al obtener estadísticas:', error);
+    res.status(500).json({ error: 'Error al obtener estadísticas' });
+  }
+});
+
+
 //Ruta para guardar la playlist en la base de datos
 app.post('/api/post-playlist', async (req, res) => {
   const { playlistName, description, tracks, requestedDuration, actualDuration } = req.body;

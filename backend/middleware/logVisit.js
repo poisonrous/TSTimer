@@ -1,11 +1,16 @@
 const Visit = require('../models/Visit');
+const geoip = require('geoip-lite');
 
 async function logVisit(req, res, next) {
   if (!req.session.visitId) {
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const geo = geoip.lookup(ip);
+    const country = geo ? geo.country : 'Unknown';
     const source = req.headers['referer'] || 'Direct';
+
     const newVisit = new Visit({
       ip,
+      country, // Almacenar la información del país
       source,
       timestamp: new Date(),
       duration: 0

@@ -81,24 +81,14 @@ const Home = () => {
       const data = await response.json();
       Swal.close();
       setSongs(data);
-
       // Calcular la duración total de la playlist generada
       const total = data.reduce((acc, song) => acc + song.duration, 0);
       setTotalDuration(total);
       localStorage.setItem('totalDuration', total);
 
-      // Asegúrate de que todos los tracks tienen los campos requeridos
-      const validTracks = data.map(track => ({
-        name: track.nombre,
-        artist: track.artista,
-        duration: track.duracion,
-        src: track.src,
-        preview_url: track.preview_url,
-        spotifyId: track.id
-      }));
 
       // Llamar a handlePostPlaylist para registrar la playlist
-      await handlePostPlaylist(validTracks, total);
+      await handlePostPlaylist(data, total);
     } catch (error) {
       Swal.close();
       console.error('Error al enviar el tiempo al servidor:', error);

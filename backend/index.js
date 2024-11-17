@@ -32,10 +32,9 @@ const spotifyApi = new SpotifyWebApi({
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
   redirectUri: 'http://localhost:5000/callback'
 });
-
-app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 //Ruta para entrar al administrador
 app.post('/api/admin-login', login);
@@ -210,15 +209,6 @@ app.get('/api/stats', async (req, res) => {
 //Ruta para guardar la playlist en la base de datos
 app.post('/api/post-playlist', async (req, res) => {
   const { playlistName, description, tracks, requestedDuration, actualDuration } = req.body;
-  console.log(req.session);
-  //TODO NO SE ESTÁ OBTENIENDO EL ID DE LA VISITA
-  const visitId = req.session.visitId;
-  console.log('Datos recibidos:', { playlistName, description, tracks, requestedDuration, actualDuration, visitId });
-
-  if (!visitId) {
-    return res.status(400).json({ message: 'No se ha registrado una visita.' });
-  }
-
   try {
     const trackIds = [];
 
@@ -249,8 +239,7 @@ app.post('/api/post-playlist', async (req, res) => {
       description: description,
       tracks: trackIds,
       requestedDuration: requestedDuration,
-      actualDuration: actualDuration,
-      visit: visitId // Asociamos la visita
+      actualDuration: actualDuration
     });
 
     const savedPlaylist = await newPlaylist.save();

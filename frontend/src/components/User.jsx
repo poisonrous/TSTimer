@@ -1,8 +1,29 @@
+import { AiOutlineUser } from "react-icons/ai";
+
+
 const User = () => {
   return (
       <div>
-        <h1>User View</h1>
-        {/* Datos de usuario */}
+        <div className={'section'}>
+          <div className="form-group">
+            <i className="icon-form">
+              <AiOutlineUser/>
+            </i>
+            <input
+                id={"name"}
+                type={"text"}
+            />
+          </div>
+          <div className="form-group">
+            <i className="icon-form">
+              <AiOutlineUser/>
+            </i>
+            <input
+                id={"username"}
+                type={"text"}
+            />
+          </div>
+        </div>
       </div>
   );
 };

@@ -3,7 +3,7 @@ import { useState } from "react";
 import BtnOption from '../components/BtnOption';
 import Statistics from '../components/Stats';
 import User from '../components/User';
-import NewUser from '../components/NewUser';
+import Users from '../components/Users';
 import Collections from '../components/Collections';
 import '../stylesheets/Panel.css'
 
@@ -37,9 +37,9 @@ const AdminPanel = ({ onLogout }) => {
               handleClick={handleOptionClick}
           />
           <BtnOption
-              text="New user"
-              iconName="newUser"
-              selected={selectedOption === "newUser"}
+              text="Users"
+              iconName="users"
+              selected={selectedOption === "users"}
               handleClick={handleOptionClick}
           />
           <BtnOption
@@ -59,7 +59,7 @@ const AdminPanel = ({ onLogout }) => {
         <article className="article-content">
           {selectedOption === "statistics" ? <Statistics /> : null}
           {selectedOption === "user" ? <User /> : null}
-          {selectedOption === "newUser" ? <NewUser /> : null}
+          {selectedOption === "users" ? <Users /> : null}
           {selectedOption === "collections" ? <Collections /> : null}
         </article>
       </div>

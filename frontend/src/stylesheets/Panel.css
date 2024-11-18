@@ -135,6 +135,24 @@ img {
 .delete > button, .delete > button:hover {
 }
 
+.users-button {
+  border-radius: 0;
+  font-size: 20px;
+  width: 180px;
+  height: 40px;
+  align-self: end;
+}
+
+.delete-btn {
+  background-color: red;
+  opacity: 0.5;
+}
+
+.delete-btn:hover {
+  background-color: red;
+  opacity: 1;
+}
+
 .card {
   background-color: white;
   border-radius: 10px;
@@ -212,4 +230,11 @@ img {
   border-radius: 5px;
   border: 1px solid darkslateblue;
   font-size: 15px;
+}
+
+.users-map {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 }

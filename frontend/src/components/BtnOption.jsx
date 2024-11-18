@@ -1,6 +1,6 @@
 import { IoStatsChart } from "react-icons/io5";
 import { MdCollectionsBookmark } from "react-icons/md";
-import { AiOutlineUserAdd, AiOutlineUser } from "react-icons/ai";
+import { AiOutlineUserAdd, AiOutlineUser, AiOutlineUsergroupAdd } from "react-icons/ai";
 import { LuLogOut } from "react-icons/lu";
 
 
@@ -9,6 +9,7 @@ function BtnOption({ text, iconName, selected, handleClick }) {
   const iconMap = {
     statistics: <IoStatsChart />,
     user: <AiOutlineUser />,
+    users: <AiOutlineUsergroupAdd />,
     newUser: <AiOutlineUserAdd />,
     collections: <MdCollectionsBookmark />,
     logout: <LuLogOut />,

@@ -15,20 +15,24 @@ const PlaylistSchema = new mongoose.Schema({
       ref: 'Track'
     }
   ],
-  visitor: {
+  visit: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Visitor'
+    ref: 'Visit'
   },
   createdAt: {
     type: Date,
     default: Date.now
   },
   requestedDuration: {
-    type: Number, // En segundos
-    required: true
+    type: Number,
+    required: true // En segundos
   },
   actualDuration: {
     type: Number // En segundos
+  },
+  saveCount: {
+    type: Number,
+    default: 0
   }
 });
 

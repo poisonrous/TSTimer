@@ -2,7 +2,7 @@
   width: 100%;
   display: block;
   align-items: center;
-  justify-items: center;
+  justify-items: start;
 }
 
 .playlist-info-container {
@@ -20,7 +20,8 @@
 .playlist {
   display: block;
   align-items: center;
-  justify-items: center;
+  justify-items: start;
+  width: 100%;
 }
 
 

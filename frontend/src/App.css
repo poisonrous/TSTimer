@@ -35,6 +35,53 @@ left: 0;
   padding-bottom: 40px;
 }
 
+.Admin {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 40%;
+  min-width: 300px;
+  background-color: #e8e8e8;
+  box-shadow: 2px 2px 2px -1px #3e3769;
+  padding: 10px;
+}
+
+.login-card > form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card > form > input {
+  margin: 5px;
+  width: 80%;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid darkslateblue;
+  font-size: 15px;
+}
+
+.login-card > form > button {
+  margin: 5px;
+  padding-bottom: 33px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid darkslateblue;
+}
+
+.error {
+  color: red;
+  font-family: Segoe UI, sans-serif;
+  font-size: 12px;
+  margin: 0;
+}
 
 h1, h2, h3 {
   font-family: Segoe UI, sans-serif;

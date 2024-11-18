@@ -16,15 +16,14 @@ const User = require('./models/User');
 const login = require('./middleware/auth');
 const bcrypt = require('bcrypt');
 
-
-connectDB();
-
 app.use(session({
   secret: '767254632',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false }
 }));
+
+connectDB();
 
 // Cliente de la API de Spotify con variables de entorno
 const spotifyApi = new SpotifyWebApi({
@@ -36,8 +35,20 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
-//Ruta para entrar al administrador
-app.post('/api/admin-login', login);
+//Ruta para recuperar datos del administrador
+app.get('/api/user', async (req, res) => {
+  console.log(req.session.user);
+  try {
+    const user = await User.findById(req.session.user);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error al obtener datos del usuario:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Ruta para verificar la autenticación del usuario
 app.get('/api/check-auth', (req, res) => {
@@ -48,6 +59,58 @@ app.get('/api/check-auth', (req, res) => {
   else { res.status(200).json({ isAuthenticated: false }); }
 });
 
+//Ruta para entrar al administrador
+app.post('/api/admin-login', login, (req, res) => {
+  res.status(200).json({ message: 'Quiero llorar' });
+});
+
+//Ruta para guardar la playlist en la base de datos
+app.post('/api/post-playlist', async (req, res) => {
+  console.log(req.session);
+  const { playlistName, description, tracks, requestedDuration, actualDuration } = req.body;
+  try {
+    const trackIds = [];
+
+    for (const track of tracks) {
+      console.log('Procesando track:', track);
+      let existingTrack = await Track.findOne({ spotifyId: track.spotifyId });
+
+      if (!existingTrack) {
+        const newTrack = new Track({
+          name: track.name,
+          artist: track.artist,
+          duration: track.duration,
+          src: track.src,
+          preview_url: track.preview_url,
+          spotifyId: track.spotifyId
+        });
+        existingTrack = await newTrack.save();
+        console.log('Nuevo track guardado:', existingTrack);
+      } else {
+        console.log('Track existente:', existingTrack);
+      }
+
+      trackIds.push(existingTrack._id);
+    }
+
+    const newPlaylist = new Playlist({
+      name: playlistName,
+      description: description,
+      tracks: trackIds,
+      requestedDuration: requestedDuration,
+      actualDuration: actualDuration
+    });
+
+    const savedPlaylist = await newPlaylist.save();
+    console.log('Playlist registrada con éxito:', savedPlaylist);
+
+    res.status(201).json({ message: 'Playlist registrada con éxito', playlistId: savedPlaylist._id });
+  } catch (error) {
+    console.error('Error al registrar la playlist:', error);
+    res.status(500).json({ error: `Error al registrar la playlist: ${error.message}` });
+  }
+});
+
 // Ruta para registrar visitas
 app.post('/api/log-visit', logVisit, (req, res) => {
   res.status(200).json({ message: 'Visita registrada con éxito' });
@@ -55,6 +118,7 @@ app.post('/api/log-visit', logVisit, (req, res) => {
 
 //Ruta para terminar visita
 app.post('/api/end-visit', async (req, res) => {
+  console.log(req.session);
   if (req.session.visitId && req.session.visitStart) {
     const visitEnd = Date.now();
     const visitDuration = (visitEnd - req.session.visitStart) / 1000;
@@ -205,52 +269,6 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
-
-//Ruta para guardar la playlist en la base de datos
-app.post('/api/post-playlist', async (req, res) => {
-  const { playlistName, description, tracks, requestedDuration, actualDuration } = req.body;
-  try {
-    const trackIds = [];
-
-    for (const track of tracks) {
-      console.log('Procesando track:', track);
-      let existingTrack = await Track.findOne({ spotifyId: track.spotifyId });
-
-      if (!existingTrack) {
-        const newTrack = new Track({
-          name: track.name,
-          artist: track.artist,
-          duration: track.duration,
-          src: track.src,
-          preview_url: track.preview_url,
-          spotifyId: track.spotifyId
-        });
-        existingTrack = await newTrack.save();
-        console.log('Nuevo track guardado:', existingTrack);
-      } else {
-        console.log('Track existente:', existingTrack);
-      }
-
-      trackIds.push(existingTrack._id);
-    }
-
-    const newPlaylist = new Playlist({
-      name: playlistName,
-      description: description,
-      tracks: trackIds,
-      requestedDuration: requestedDuration,
-      actualDuration: actualDuration
-    });
-
-    const savedPlaylist = await newPlaylist.save();
-    console.log('Playlist registrada con éxito:', savedPlaylist);
-
-    res.status(201).json({ message: 'Playlist registrada con éxito', playlistId: savedPlaylist._id });
-  } catch (error) {
-    console.error('Error al registrar la playlist:', error);
-    res.status(500).json({ error: `Error al registrar la playlist: ${error.message}` });
-  }
-});
 
 // Ruta para guardar la playlist en la cuenta del usuario
 app.post('/api/save-playlist', async (req, res) => {

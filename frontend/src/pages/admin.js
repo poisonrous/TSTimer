@@ -13,10 +13,24 @@ const Admin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    const checkSession = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/check-session', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkSession();
   }, []);
 
   const handleUsernameChange = (e) => {
@@ -72,7 +86,6 @@ const Admin = () => {
       if (!response.ok) {
         throw new Error(data.error || 'Login failed');
       }
-      localStorage.setItem('authToken', data.token);
       setIsAuthenticated(true);
     } catch (error) {
       setGeneralError(error.message);

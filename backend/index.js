@@ -51,18 +51,206 @@ app.get('/api/user', async (req, res) => {
 });
 
 // Ruta para verificar la autenticación del usuario
-app.get('/api/check-auth', (req, res) => {
-  console.log(req.session);
+app.get('/api/check-session', (req, res) => {
   if (req.session.user) {
-    res.status(200).json({
-      isAuthenticated: true }); }
-  else { res.status(200).json({ isAuthenticated: false }); }
+    res.status(200).json({ authenticated: true });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
 });
+
 
 //Ruta para entrar al administrador
 app.post('/api/admin-login', login, (req, res) => {
   res.status(200).json({ message: 'Quiero llorar' });
 });
+
+// Ruta para obtener todos los usuarios no eliminados
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({ deletedAt: null }); // Filtrar usuarios no eliminados
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error);
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
+});
+
+// Ruta para crear un nuevo usuario
+app.post('/api/users', async (req, res) => {
+  const { name, username, email, phone, password, access } = req.body;
+
+  // Asegurarse de que todos los campos requeridos están presentes
+  if (!name || !username || !email || !phone || !password || access === undefined) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      name,
+      username,
+      email,
+      phone,
+      password: hashedPassword,
+      access
+    });
+
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
+  } catch (error) {
+    console.error('Error al crear el usuario:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Ruta para actualizar el tipo de acceso de un usuario
+app.put('/api/users/:userId/access', async (req, res) => {
+  const { userId } = req.params;
+  const { access } = req.body;
+
+  try {
+    // Actualizar el acceso del usuario en la base de datos
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { access },
+        { new: true, runValidators: true } // Retorna el usuario actualizado y valida el nuevo valor
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error al actualizar el acceso del usuario:', error);
+    res.status(500).json({ error: 'Error al actualizar el acceso del usuario' });
+  }
+});
+
+// Ruta para borrar lógicamente un usuario
+app.put('/api/users/:userId/delete', async (req, res) => {
+  const { userId } = req.params;
+  const { password } = req.body;
+
+  try {
+    // Obtener el usuario autenticado desde la sesión
+    const authenticatedUser = await User.findById(req.session.user);
+    if (!authenticatedUser) {
+      return res.status(404).json({ error: 'Authenticated user not found' });
+    }
+
+    // Validar la contraseña del usuario autenticado
+    const isMatch = await bcrypt.compare(password, authenticatedUser.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid password' });
+    }
+
+    // Borrar lógicamente al usuario especificado
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { deletedAt: new Date() },
+        { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User to delete not found' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully', user: updatedUser });
+  } catch (error) {
+    console.error('Error al borrar lógicamente el usuario:', error);
+    res.status(500).json({ error: 'Error al borrar lógicamente el usuario' });
+  }
+});
+
+
+//Ruta para guardar cambios en la info del usuario
+app.put('/api/user/update-info', async (req, res) => {
+  const { userId, name, username, password } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid password' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { name, username },
+        { new: true }
+    );
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error al actualizar la información del usuario:', error);
+    res.status(500).json({ error: 'Error al actualizar la información del usuario' });
+  }
+});
+
+//Ruta para guardar cambios en los datos de contacto
+app.put('/api/user/update-contact', async (req, res) => {
+  const { userId, email, phone, password } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid password' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { email, phone },
+        { new: true }
+    );
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error al actualizar la información de contacto del usuario:', error);
+    res.status(500).json({ error: 'Error al actualizar la información de contacto del usuario' });
+  }
+});
+
+//Ruta para cambiar la contraseña
+app.put('/api/user/update-password', async (req, res) => {
+  const { userId, newPassword, password } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid password' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { password: hashedPassword },
+        { new: true }
+    );
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Error al actualizar la contraseña del usuario:', error);
+    res.status(500).json({ error: 'Error al actualizar la contraseña del usuario' });
+  }
+});
+
 
 //Ruta para guardar la playlist en la base de datos
 app.post('/api/post-playlist', async (req, res) => {

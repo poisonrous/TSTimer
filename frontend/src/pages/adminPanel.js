@@ -17,11 +17,24 @@ const AdminPanel = ({ onLogout, userAccess }) => {
     setSelectedOption(option);
 
     if (option === "logout") {
-      localStorage.removeItem('authToken');
-      onLogout();
-      navigate('/r-admin');
+      fetch('http://localhost:5000/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+          .then((response) => {
+            if (response.ok) {
+              onLogout();
+              navigate('/r-admin');
+            } else {
+              console.error('Error al cerrar sesión');
+            }
+          })
+          .catch((error) => {
+            console.error('Error al cerrar sesión', error);
+          });
     }
   };
+
 
   return (
       <DataProvider>

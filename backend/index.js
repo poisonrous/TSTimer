@@ -40,7 +40,7 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.get('/api/user', async (req, res) => {
   console.log(req.session.user);
   try {
-    const user = await User.findById(req.session.user.id);
+    const user = await User.findById(req.session.user);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -54,16 +54,29 @@ app.get('/api/user', async (req, res) => {
 // Ruta para verificar la autenticación del usuario
 app.get('/api/check-session', (req, res) => {
   if (req.session.user) {
-    res.status(200).json({ authenticated: true });
+    res.status(200).json({
+      authenticated: true,
+      user: req.session.user,
+      access: req.session.access
+    });
   } else {
-    res.status(401).json({ authenticated: false });
+    res.status(200).json({ authenticated: false });
   }
 });
-
 
 //Ruta para entrar al administrador
 app.post('/api/admin-login', login, (req, res) => {
   res.status(200).json({ message: 'Quiero llorar' });
+});
+//Ruta para salir del administrador
+app.post('/api/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to logout' });
+    }
+    res.clearCookie('connect.sid'); // Asegurarse de limpiar la cookie de la sesión
+    res.status(200).json({ message: 'Logout successful' });
+  });
 });
 
 // Ruta para obtener todos los usuarios no eliminados
@@ -105,7 +118,6 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-
 // Ruta para actualizar el tipo de acceso de un usuario
 app.put('/api/users/:userId/access', async (req, res) => {
   const { userId } = req.params;
@@ -130,41 +142,61 @@ app.put('/api/users/:userId/access', async (req, res) => {
   }
 });
 
+
 // Ruta para borrar lógicamente un usuario
 app.put('/api/users/:userId/delete', async (req, res) => {
   const { userId } = req.params;
   const { password } = req.body;
+  const authenticatedUserId = req.session.user;
 
   try {
-    // Obtener el usuario autenticado desde la sesión
-    const authenticatedUser = await User.findById(req.session.user);
-    if (!authenticatedUser) {
-      return res.status(404).json({ error: 'Authenticated user not found' });
-    }
+    const authenticatedUser = await User.findById(authenticatedUserId);
 
-    // Validar la contraseña del usuario autenticado
+    // Verificar la contraseña del usuario autenticado
     const isMatch = await bcrypt.compare(password, authenticatedUser.password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid password' });
+      return res.status(400).json({ error: 'Contraseña incorrecta' });
     }
 
-    // Borrar lógicamente al usuario especificado
-    const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { deletedAt: new Date() },
-        { new: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ error: 'User to delete not found' });
+    // Verificar si la cuenta que se intenta eliminar es la única con access 0
+    const userToDelete = await User.findById(userId);
+    if (userToDelete.access === 0) {
+      const otherAdmins = await User.find({ access: 0, _id: { $ne: userId }, deletedAt: { $exists: false } });
+      if (otherAdmins.length === 0) {
+        return res.status(400).json({ error: "You can't delete this account as it's the only Super user." });
+      }
     }
 
-    res.status(200).json({ message: 'User deleted successfully', user: updatedUser });
+    // Marcar la cuenta como eliminada
+    userToDelete.deletedAt = new Date();
+    await userToDelete.save();
+
+    // Limpiar la sesión si el usuario está eliminando su propia cuenta
+    if (userId === authenticatedUserId) {
+      req.session.destroy((err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Error al destruir la sesión' });
+        }
+        res.clearCookie('connect.sid');
+        return res.status(200).json({ message: 'Cuenta eliminada con éxito' });
+      });
+    } else {
+      return res.status(200).json({ message: 'Cuenta eliminada con éxito' });
+    }
   } catch (error) {
-    console.error('Error al borrar lógicamente el usuario:', error);
-    res.status(500).json({ error: 'Error al borrar lógicamente el usuario' });
+    console.error('Error al eliminar la cuenta:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+async function canDeleteUser(userId) {
+  const user = await User.findById(userId);
+  if (user.access !== 0) {
+    return true;
+  }
+
+  const otherAdminUsers = await User.find({ _id: { $ne: userId }, access: 0, deletedAt: { $exists: false } });
+  return otherAdminUsers.length > 0;
+}
 
 
 //Ruta para guardar cambios en la info del usuario

@@ -103,16 +103,16 @@ const Admin = () => {
                 value={username}
                 onChange={handleUsernameChange}
             />
-            {usernameError && <p style={{ color: 'red' }}>{usernameError}</p>}
+            {usernameError && <p className={'error-field error-login'}>{usernameError}</p>}
             <input
                 type={'password'}
                 placeholder={'password'}
                 value={password}
                 onChange={handlePasswordChange}
             />
-            {passwordError && <p style={{ color: 'red' }}>{passwordError}</p>}
+            {passwordError && <p className={'error-field error-login'}>{passwordError}</p>}
             <button type="submit">Log in</button>
-            {generalError && <p style={{ color: 'red' }}>{generalError}</p>}
+            {generalError && <p className={'error-field error-login'}>{generalError}</p>}
             <NavLink to={'/'}>Go back</NavLink>
           </form>
         </div>

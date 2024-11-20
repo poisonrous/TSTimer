@@ -7,6 +7,8 @@ import Dropdown from '../components/Dropdown';
 import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import React from "react";
+import Swal from 'sweetalert2';
+
 const Stats = () => {
   const periods = ["Last 4 weeks", "Last 6 months", "All time"];
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
@@ -18,21 +20,60 @@ const Stats = () => {
     accuracy: 0,
   });
 
+  const animateValue = (start, end, duration, callback) => {
+    let startTime = null;
+
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      callback(Math.floor(progress * (end - start) + start));
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  const showLoading = () => {
+    Swal.fire({
+      title: 'Loading...',
+      text: 'Fetching the latest stats for you!',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+  };
+
+  const hideLoading = () => {
+    Swal.close();
+  };
+
+
   const handleSelect = (period) => {
     setSelectedPeriod(period);
   };
 
   useEffect(() => {
     const fetchData = async () => {
+      showLoading(); // Mostrar el indicador de carga
       try {
         const response = await fetch(`/api/stats?period=${selectedPeriod}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setStatsData(data);
+        // Animar la actualización de las estadísticas
+        animateValue(0, data.playlistsCreated, 1000, (value) => setStatsData((prevData) => ({ ...prevData, playlistsCreated: value })));
+        animateValue(0, data.visitors, 1000, (value) => setStatsData((prevData) => ({ ...prevData, visitors: value })));
+        animateValue(0, data.minutesOfMusic, 1000, (value) => setStatsData((prevData) => ({ ...prevData, minutesOfMusic: value })));
+        animateValue(0, data.accuracy, 1000, (value) => setStatsData((prevData) => ({ ...prevData, accuracy: value })));
+        setStatsData((prevData) => ({ ...prevData, countries: data.countries }));
       } catch (error) {
         console.error('Error al obtener estadísticas:', error);
+      } finally {
+        hideLoading(); // Ocultar el indicador de carga
       }
     };
 

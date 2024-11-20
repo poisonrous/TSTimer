@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { AiOutlineUser, AiOutlineMail } from "react-icons/ai";
 import { CgRename } from "react-icons/cg";
 import { IoLockClosedOutline, IoPhonePortraitOutline } from "react-icons/io5";
-import PasswordModal from './PasswordModal'; // Importa el modal de contraseña
+import PasswordModal from './PasswordModal';
+import { DataContext } from '../context/DataContext';
 
 const User = () => {
+  const { userData, loading, fetchUserData } = useContext(DataContext);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -16,25 +18,14 @@ const User = () => {
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/user', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const data = await response.json();
-        setName(data.name);
-        setUsername(data.username);
-        setEmail(data.email);
-        setPhone(data.phone);
-        setUserId(data._id); // Asegurarse de tener el ID del usuario
-      } catch (error) {
-        console.error('Error al obtener datos del usuario:', error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+    if (userData) {
+      setName(userData.name);
+      setUsername(userData.username);
+      setEmail(userData.email);
+      setPhone(userData.phone);
+      setUserId(userData._id);
+    }
+  }, [userData]);
 
   const handleSaveInfo = async (password) => {
     const updatedUser = { userId, name, username, password };
@@ -47,6 +38,7 @@ const User = () => {
       });
       const data = await response.json();
       console.log('Información personal guardada con éxito:', data);
+      fetchUserData(); // Recargar datos del usuario después de guardar
     } catch (error) {
       console.error('Error al guardar la información personal del usuario:', error);
     }
@@ -63,6 +55,7 @@ const User = () => {
       });
       const data = await response.json();
       console.log('Información de contacto guardada con éxito:', data);
+      fetchUserData(); // Recargar datos del usuario después de guardar
     } catch (error) {
       console.error('Error al guardar la información de contacto del usuario:', error);
     }
@@ -83,6 +76,7 @@ const User = () => {
       });
       const data = await response.json();
       console.log('Contraseña guardada con éxito:', data);
+      fetchUserData(); // Recargar datos del usuario después de guardar
     } catch (error) {
       console.error('Error al guardar la contraseña del usuario:', error);
     }
@@ -103,6 +97,7 @@ const User = () => {
 
       const data = await response.json();
       console.log('Cuenta eliminada con éxito:', data);
+      fetchUserData(); // Recargar datos del usuario después de eliminar
     } catch (error) {
       console.error('Error al borrar lógicamente la cuenta:', error);
     }
@@ -124,6 +119,10 @@ const User = () => {
       handleDeleteAccount(password);
     }
   };
+
+  if (loading.user) {
+    return <p>Loading user data...</p>;
+  }
 
   return (
       <div>

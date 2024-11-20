@@ -11,13 +11,13 @@
   background-color: darkslateblue;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Añadido para espaciar elementos */
-  padding-right: 20px; /* Añadido para dar espacio al icono */
+  justify-content: space-between;
+  padding-right: 20px;
 }
 
 .question h2 {
   color: white;
-  flex-grow: 1; /* Permite que el texto ocupe el espacio disponible */
+  flex-grow: 1;
   text-align: left;
 }
 
@@ -33,11 +33,102 @@
 .fa-question-circle {
   font-size: 30px;
   color: white;
-  position: relative; /* Cambiado de absolute a relative */
-  right: 0; /* Asegura que el icono se mantenga al final */
-  margin-left: auto; /* Empuja el icono al borde derecho */
+  position: relative;
+  right: 0;
+  margin-left: auto;
 }
 
 .question:hover {
   cursor: pointer;
+}
+
+.crud-icons {
+  justify-self: end;
+  margin-right: 5px;
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: rgba(72, 61, 139, 0.6);
+}
+
+.crud-icons > i:hover {
+  color: darkslateblue;
+  cursor: pointer;
+}
+
+.editor-btn {
+  width: 25px;
+  height: 25px;
+  font-size: 15px;
+  border-radius: 2px;
+  align-items: center;
+  justify-items: center;
+  background-color: #e8e8e8;
+  color: darkslateblue;
+  border: 1px solid rgba(72, 61, 139, 0.6)
+}
+
+/* Estilo para el contenedor del editor */
+.edit-editor {
+  border: 1px solid darkslateblue;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+}
+
+/* Estilo para el contenido editable */
+.edit-editor .ProseMirror {
+  min-height: 100px;
+}
+
+.edit-editor .ProseMirror-focused {
+  outline: none;
+}
+
+/* Estilo para los enlaces */
+
+.edit-editor .ProseMirror > p > a:hover {
+  cursor: pointer;
+}
+
+/* Estilo para el texto en negrita */
+.edit-editor .ProseMirror strong {
+  font-weight: bold;
+}
+
+/* Estilo para el texto en cursiva */
+.edit-editor .ProseMirror em {
+  font-style: italic;
+}
+
+/*Estilo para el editor de la pregunta*/
+.question-editor .ProseMirror > p {
+  display: block;
+  font-size: 1.5em;
+  margin-block-start: 0.1em;
+  margin-block-end: 0.1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+  unicode-bidi: isolate;
+  color: rgba(72, 61, 139, 0.6);
+  opacity: 1;
+  margin-left: 20px;
+  font-family: Segoe UI, sans-serif;
+  flex-grow: 1;
+  text-align: left;
+}
+
+/* Estilo para el contenedor del editor de la pregunta */
+.question-editor {
+  border: 1px solid darkslateblue;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  min-width: 400px;
+}
+
+.question-editor .ProseMirror-focused {
+  outline: none;
 }

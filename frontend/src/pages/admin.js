@@ -9,6 +9,7 @@ const Admin = () => {
   const [passwordError, setPasswordError] = useState('');
   const [generalError, setGeneralError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userAccess, setUserAccess] = useState(null); // Nuevo estado para el tipo de acceso del usuario
 
   const navigate = useNavigate();
 
@@ -22,6 +23,7 @@ const Admin = () => {
         const data = await response.json();
         if (data.authenticated) {
           setIsAuthenticated(true);
+          setUserAccess(data.access); // Establecer el tipo de acceso del usuario
         } else {
           setIsAuthenticated(false);
         }
@@ -38,13 +40,6 @@ const Admin = () => {
     if (/^[a-zA-Z0-9]*$/.test(value) && value.length <= 16) {
       setUsername(value);
       setUsernameError('');
-    } else {
-      if (!/^[a-zA-Z0-9]*$/.test(value)) {
-        setUsernameError('Username can only contain letters and numbers.');
-      }
-      if (value.length > 16) {
-        setUsernameError('Username cannot be longer than 16 characters.');
-      }
     }
   };
 
@@ -87,13 +82,14 @@ const Admin = () => {
         throw new Error(data.error || 'Login failed');
       }
       setIsAuthenticated(true);
+      setUserAccess(data.access); // Establecer el tipo de acceso del usuario
     } catch (error) {
       setGeneralError(error.message);
     }
   };
 
   if (isAuthenticated) {
-    return <AdminPanel onLogout={() => setIsAuthenticated(false)} />;
+    return <AdminPanel onLogout={() => setIsAuthenticated(false)} userAccess={userAccess} />; // Pasar el tipo de acceso al AdminPanel
   }
 
   return (

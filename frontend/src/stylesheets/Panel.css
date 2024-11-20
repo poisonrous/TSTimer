@@ -3,6 +3,7 @@
   width: 20%;
   min-width: 240px;
   height: 100vh;
+  position: fixed;
 }
 
 .panel-title {
@@ -52,6 +53,7 @@ img {
 .article-content {
   padding: 40px;
   flex: 1;
+  margin-left: 20%;
 }
 
 .card-create {

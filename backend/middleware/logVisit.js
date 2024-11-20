@@ -1,9 +1,11 @@
 const Visit = require('../models/Visit');
 const geoip = require('geoip-lite');
+const { faker } = require('@faker-js/faker');
 
 async function logVisit(req, res, next) {
   if (!req.session.visitId) {
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+   // const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const ip = faker.internet.ipv4(); //Asignar IPs randoms para las pruebas mientras trabajo local
     const geo = geoip.lookup(ip);
     const country = geo ? geo.country : 'Unknown';
     const source = req.headers['referer'] || 'Direct';

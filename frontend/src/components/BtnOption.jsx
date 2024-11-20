@@ -2,7 +2,7 @@ import { IoStatsChart } from "react-icons/io5";
 import { MdCollectionsBookmark } from "react-icons/md";
 import { AiOutlineUserAdd, AiOutlineUser, AiOutlineUsergroupAdd } from "react-icons/ai";
 import { LuLogOut } from "react-icons/lu";
-
+import { FaQuestionCircle } from "react-icons/fa";
 
 
 function BtnOption({ text, iconName, selected, handleClick }) {
@@ -13,6 +13,7 @@ function BtnOption({ text, iconName, selected, handleClick }) {
     newUser: <AiOutlineUserAdd />,
     collections: <MdCollectionsBookmark />,
     logout: <LuLogOut />,
+    faqs: <FaQuestionCircle />
   };
 
   return (

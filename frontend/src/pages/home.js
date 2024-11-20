@@ -15,6 +15,7 @@ const Home = () => {
   const [totalDuration, setTotalDuration] = useState(0);
   const [reload, setReload] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   let input;
 
@@ -43,11 +44,6 @@ const Home = () => {
         setSs(parseInt(seconds));
         setShowPlaylist(true);  // Asegurarse de mostrar la playlist
         handleSavePlaylist(accessToken, tracks);
-        localStorage.removeItem('tracks'); // Limpiar storage después de guardar
-        localStorage.removeItem('totalDuration');
-        localStorage.removeItem('hh');
-        localStorage.removeItem('mm');
-        localStorage.removeItem('ss');
       }
     }
   }, []);
@@ -80,19 +76,28 @@ const Home = () => {
       });
       const data = await response.json();
       Swal.close();
-      setSongs(data);
-      // Calcular la duración total de la playlist generada
-      const total = data.reduce((acc, song) => acc + song.duration, 0);
-      setTotalDuration(total);
-      localStorage.setItem('totalDuration', total);
 
-
-      // Llamar a handlePostPlaylist para registrar la playlist
-      await handlePostPlaylist(data, total);
+      if (Array.isArray(data)) {
+        setSongs(data);
+        // Calcular la duración total de la playlist generada
+        const total = data.reduce((acc, song) => acc + song.duration, 0);
+        setTotalDuration(total);
+        localStorage.setItem('totalDuration', total);
+        localStorage.setItem('hh', hh); // Mantener la hora en localStorage
+        localStorage.setItem('mm', mm); // Mantener los minutos en localStorage
+        localStorage.setItem('ss', ss); // Mantener los segundos en localStorage
+        setShowPlaylist(true);
+        // Llamar a handlePostPlaylist para registrar la playlist
+        await handlePostPlaylist(data, total);
+        setHasError(false);
+      } else {
+        throw new Error('Invalid data format');
+      }
     } catch (error) {
       Swal.close();
       console.error('Error al enviar el tiempo al servidor:', error);
-      Swal.fire({ icon: 'error', text: 'Error al enviar el tiempo al servidor. Inténtalo de nuevo.' });
+      Swal.fire({ icon: 'error', text: "There's been an eror sending your request... But you can try again." });
+      setHasError(true);
     }
   };
 
@@ -109,14 +114,13 @@ const Home = () => {
     localStorage.setItem('ss', seconds);
 
     if (input >= 131) {
-      setShowPlaylist(true);
       sendInput(input);
     } else {
       Swal.fire({
         text: "C'mon, you can't even fit Taylor's shortest song in that timeframe. Let's do better!"
       });
     }
-    setReload(!reload);  // Esto podría no ser necesario si reinicia el estado
+    // Eliminar setReload(!reload) ya que puede no ser necesario
   };
   const handlePostPlaylist = async (tracks, totalDuration) => {
     try {

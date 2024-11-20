@@ -8,10 +8,10 @@
   text-align: center;
 }
 
-input:first-of-type {
+.field:first-of-type {
   border-radius: 40px 0 0 40px;
 }
 
-input:last-of-type {
+.field:last-of-type {
   border-radius: 0 40px 40px 0;
 }

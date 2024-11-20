@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import AccessModal from './AccessModal';
 import AddUserModal from './AddUserModal';
 import PasswordModal from './PasswordModal';
 import { FaUserShield } from 'react-icons/fa';
 import { AiOutlineUser, AiOutlineMail, AiOutlineUserAdd } from 'react-icons/ai';
 import { IoPhonePortraitOutline } from 'react-icons/io5';
+import { DataContext } from '../context/DataContext';
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
+  const { users, handleSaveAccess, handleDelete, handleAddUser, fetchUsers } = useContext(DataContext);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -15,22 +16,8 @@ const Users = () => {
   const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/users', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const data = await response.json();
-        const activeUsers = data.filter(user => !user.deletedAt);
-        setUsers(activeUsers);
-      } catch (error) {
-        console.error('Error al obtener usuarios:', error);
-      }
-    };
-
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const handleOpenModal = (user) => {
     setSelectedUser(user);
@@ -40,58 +27,6 @@ const Users = () => {
   const handleCloseModal = () => {
     setSelectedUser(null);
     setShowModal(false);
-  };
-
-  const handleSaveAccess = async (userId, access) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/access`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access }),
-        credentials: 'include',
-      });
-      const updatedUser = await response.json();
-      setUsers(users.map(user => user._id === updatedUser._id ? updatedUser : user));
-    } catch (error) {
-      console.error('Error al actualizar acceso del usuario:', error);
-    }
-  };
-
-  const handleDelete = async (userId, password) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/delete`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al borrar lógicamente el usuario');
-      }
-
-      // Marcar el usuario como eliminado en el estado local
-      const updatedUser = await response.json();
-      setUsers(users.map(u => u._id === updatedUser.user._id ? updatedUser.user : u));
-      console.log('Usuario borrado lógicamente con éxito:', userId);
-    } catch (error) {
-      console.error('Error al borrar lógicamente el usuario:', error);
-    }
-  };
-
-  const handleAddUser = async (newUser) => {
-    try {
-      const response = await fetch('http://localhost:5000/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUser),
-        credentials: 'include',
-      });
-      const addedUser = await response.json();
-      setUsers([...users, addedUser]);
-    } catch (error) {
-      console.error('Error al agregar el usuario:', error);
-    }
   };
 
   const handleOpenAddModal = () => {

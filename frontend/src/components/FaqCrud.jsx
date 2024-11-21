@@ -26,6 +26,13 @@ function FaqCrud({ question, answer, isOpen, isNew, onClick, onSave, onDelete, o
     }
   }, [isNew]);
 
+  useEffect(() => {
+    if (!isEditing) {
+      setEditedQuestion(question);
+      setEditedAnswer(answer);
+    }
+  }, [isEditing, question, answer]);
+
   const questionEditor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -65,6 +72,9 @@ function FaqCrud({ question, answer, isOpen, isNew, onClick, onSave, onDelete, o
       onDelete();
     } else {
       setIsEditing(false);
+      // Restablecer el contenido original
+      setEditedQuestion(question);
+      setEditedAnswer(answer);
     }
   };
 

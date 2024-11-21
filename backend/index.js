@@ -90,7 +90,6 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// Ruta para crear un nuevo usuario
 app.post('/api/users', async (req, res) => {
   const { name, username, email, phone, password, access } = req.body;
 
@@ -100,6 +99,24 @@ app.post('/api/users', async (req, res) => {
   }
 
   try {
+    // Verificar si el nombre de usuario ya existe
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    // Verificar si el correo ya existe
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
+
+    // Verificar si el teléfono ya existe
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Phone number already exists' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       name,
@@ -114,7 +131,11 @@ app.post('/api/users', async (req, res) => {
     res.status(201).json(savedUser);
   } catch (error) {
     console.error('Error al crear el usuario:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    if (error.name === 'ValidationError') {
+      res.status(400).json({ error: 'Invalid data' });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 });
 

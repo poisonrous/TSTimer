@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import FaqCrud from '../components/FaqCrud';
 import { FaFileCircleQuestion } from "react-icons/fa6";
 import { DataContext } from '../context/DataContext';
@@ -19,19 +20,84 @@ const FAQs = () => {
   };
 
   const handleSave = async (id, newQuestion, newAnswer) => {
-    await handleSaveFaq(id, newQuestion, newAnswer);
+    if (newQuestion.length < 15 || newAnswer.length < 15) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Both question and answer should be at least 15 characthers long',
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: 'Are you sure about the changes?',
+      text: 'You can go back and keep editing if not',
+      icon: 'warning',
+      showCancelButton: true,
+      reverseButtons: true,
+      confirmButtonText: 'Save',
+      cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await handleSaveFaq(id, newQuestion, newAnswer);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Changes have been saved',
+        });
+      } else if (id === null) {
+        // Si es una nueva pregunta y el usuario cancela, se mantiene el editor abierto.
+        setOpenQuestionIndex(faqs.length);
+      } else {
+        setOpenQuestionIndex(faqs.findIndex(faq => faq._id === id));
+      }
+    });
   };
 
   const handleDelete = async (id) => {
-    if (id) {
-      await handleDeleteFaq(id);
-    } else {
-      setNewQuestion(null);
-    }
+    Swal.fire({
+      title: 'Are you sure you wanna delete this question?',
+      text: 'You can change its visibility if you just wanna hide it',
+      icon: 'warning',
+      showCancelButton: true,
+      reverseButtons: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        if (id) {
+          await handleDeleteFaq(id);
+        } else {
+          setNewQuestion(null);
+        }
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'The question has been removed',
+        });
+      }
+    });
   };
 
   const handleToggleVisibility = async (id, currentVisibility) => {
-    await handleToggleFaqVisibility(id, currentVisibility);
+    Swal.fire({
+      title: 'Are you sure about changing the visibility',
+      text: `Visitors ${currentVisibility ? "won't" : 'will'} be able to see this question`,
+      icon: 'warning',
+      showCancelButton: true,
+      reverseButtons: true,
+      confirmButtonText: 'Change',
+      cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await handleToggleFaqVisibility(id, currentVisibility);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: `Visitors ${currentVisibility ? "won't" : 'will'} see this question now`,
+        });
+      }
+    });
   };
 
   const addNewQuestion = () => {

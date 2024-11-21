@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import BtnOption from '../components/BtnOption';
 import Statistics from '../components/Stats';
 import User from '../components/User';
@@ -7,39 +7,43 @@ import Users from '../components/Users';
 import Collections from '../components/Collections';
 import FAQs from '../components/FAQs';
 import '../stylesheets/Panel.css';
+import { RiMenuFold2Fill, RiMenuFold3Fill } from "react-icons/ri";
 import { DataProvider } from '../context/DataContext';
+import useWindowSize from '../utils/useWindowSize';
 
 const AdminPanel = ({ onLogout, userAccess }) => {
   const [selectedOption, setSelectedOption] = useState("statistics");
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
   const navigate = useNavigate();
+
+  const size = useWindowSize();
+  const isMobile = size.width <= 768;
+
+  useEffect(() => {
+    if(!isMobile) setIsPanelOpen(true);
+  }, [isMobile]);
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
 
     if (option === "logout") {
-      fetch('http://localhost:5000/api/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
-          .then((response) => {
-            if (response.ok) {
-              onLogout();
-              navigate('/r-admin');
-            } else {
-              console.error('Error al cerrar sesión');
-            }
-          })
-          .catch((error) => {
-            console.error('Error al cerrar sesión', error);
-          });
+      localStorage.removeItem('authToken');
+      onLogout();
+      navigate('/r-admin');
     }
   };
 
+  const togglePanel = () => {
+    setIsPanelOpen(!isPanelOpen);
+  };
 
   return (
       <DataProvider>
         <div className="dashboard-container">
-          <aside className={`panel`}>
+          <button className="toggle-button" onClick={togglePanel}>
+            {isPanelOpen ? <RiMenuFold3Fill /> : <RiMenuFold2Fill />}
+          </button>
+          <aside className={`panel ${isPanelOpen ? "open" : "closed"}`}>
             <BtnOption
                 text="Statistics"
                 iconName="statistics"

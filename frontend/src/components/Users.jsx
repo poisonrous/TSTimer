@@ -135,7 +135,7 @@ const Users = () => {
         </button>
         <div className="users-map">
           {users.map((user) => (
-              <div key={user._id} className="card">
+              <div key={user._id} className="card users">
                 <h3>{user.username}</h3>
                 <p>
                   <FaUserShield className="icon"/> {user.access == 0 ? 'Super' : user.access == 1 ? 'R&W' : 'Read-only'}

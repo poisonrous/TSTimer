@@ -8,8 +8,15 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import React from "react";
 import Swal from 'sweetalert2';
+import useWindowSize from '../utils/useWindowSize';
 
 const Stats = () => {
+
+  const size = useWindowSize();
+  const isMobile = size.width <= 768;
+
+  const pieChartSize = isMobile ? 300 : 250
+
   const periods = ["Last 4 weeks", "Last 6 months", "All time"];
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
   const [statsData, setStatsData] = useState({
@@ -119,7 +126,7 @@ const Stats = () => {
             <h2>Accuracy</h2>
             <div
                 className={"custom-pie"}
-                style={{ position: "relative", width: 250, height: 250 }}
+                style={{ position: "relative", width: {pieChartSize}, height: {pieChartSize}}}
             >
               <PieChart
                   series={[
@@ -130,8 +137,8 @@ const Stats = () => {
                       data: pieChartData,
                     },
                   ]}
-                  width={250}
-                  height={250}
+                  width={pieChartSize}
+                  height={pieChartSize}
               />
               <div
                   style={{
@@ -152,14 +159,19 @@ const Stats = () => {
             <h2>Countries</h2>
             <BarChart
                 series={[{ data: statsData.countries.map(item => item.value), color: "darkslateblue" }]}
-                yAxis={[{
+                xAxis={isMobile ? [{
                   data: statsData.countries.map(item => item.label),
                   scaleType: "band",
                   barGapRatio: 1.0
-                }]}
-                height={250}
-                width={560}
-                layout={"horizontal"}
+                }] : []}
+                yAxis={!isMobile ? [{
+                  data: statsData.countries.map(item => item.label),
+                  scaleType: "band",
+                  barGapRatio: 1.0
+                }] : []}
+                height={isMobile ? 400 : 250}
+                width={isMobile ? 300 : 560}
+                layout={isMobile ? "vertical" : "horizontal"}
                 margin={{ left: 100 }}
             />
           </div>

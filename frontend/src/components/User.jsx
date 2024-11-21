@@ -301,11 +301,44 @@ const User = () => {
     }
   };
 
+  const handleNameKeyPress = (e) => {
+    const regex = /^[a-zA-Z\s]*$/;
+    if (!regex.test(e.key) || (e.key === ' ' && e.target.value.slice(-1) === ' ')) {
+      e.preventDefault();
+    }
+  };
+
+
+  const handleUsernameKeyPress = (e) => {
+    const regex = /^[a-zA-Z0-9]*$/;
+    if (!regex.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const handleEmailKeyPress = (e) => {
+    const regex = /^[\w@.-]*$/;
+    if (!regex.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  const handlePhoneKeyPress = (e) => {
+    const regex = /^[\d+]*$/;
+    if (!regex.test(e.key)) {
+      e.preventDefault();
+    }
+  };
+
   const handleNameChange = (e) => {
-    const value = e.target.value;
+    let value = e.target.value;
     setName(value);
-    if (value.length < 6) {
+    let displayValue = value.trimEnd();
+
+    if (displayValue.length < 6) {
       setNameError('Name should be 6 characters or longer');
+    } else if (displayValue.length > 20) {
+      setNameError('Name should be no more than 20 characters');
     } else {
       setNameError('');
     }
@@ -361,6 +394,8 @@ const User = () => {
                     type={"text"}
                     value={name}
                     onChange={handleNameChange}
+                    onKeyPress={handleNameKeyPress}
+                    maxLength={20}
                 />
               </div>
               {nameError && <p className={'error-field'}>{nameError}</p>}
@@ -375,6 +410,8 @@ const User = () => {
                     type={"text"}
                     value={username}
                     onChange={handleUsernameChange}
+                    onKeyPress={handleUsernameKeyPress}
+                    maxLength={20}
                 />
               </div>
               {usernameError && <p className={'error-field'}>{usernameError}</p>}
@@ -395,6 +432,8 @@ const User = () => {
                     type={"text"}
                     value={email}
                     onChange={handleEmailChange}
+                    onKeyPress={handleEmailKeyPress}
+                    maxLength={50}
                 />
               </div>
               {emailError && <p className={'error-field'}>{emailError}</p>}
@@ -409,6 +448,8 @@ const User = () => {
                     type={"text"}
                     value={phone}
                     onChange={handlePhoneChange}
+                    onKeyPress={handlePhoneKeyPress}
+                    maxLength={20}
                 />
               </div>
               {phoneError && <p className={'error-field'}>{phoneError}</p>}
@@ -422,7 +463,7 @@ const User = () => {
             <div>
               <div className="form-group">
                 <i className="icon-form">
-                  <IoLockClosedOutline/>
+                  <IoLockClosedOutline />
                 </i>
                 <input
                     id={"newpass"}
@@ -438,7 +479,7 @@ const User = () => {
             <div>
               <div className="form-group">
                 <i className="icon-form">
-                  <IoLockClosedOutline/>
+                  <IoLockClosedOutline />
                 </i>
                 <input
                     id={"confirmpass"}

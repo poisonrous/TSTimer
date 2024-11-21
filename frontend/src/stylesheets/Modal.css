@@ -17,6 +17,7 @@
   margin: 10% auto; /* 15% desde la parte superior y centrado horizontalmente */
   padding: 20px;
   border: 1px solid #888;
+  min-width: 300px;
   width: 30%; /* Puede ajustar el ancho según sea necesario */
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   animation-name: animateTop;

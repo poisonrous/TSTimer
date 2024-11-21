@@ -126,9 +126,21 @@
   background-color: #f9f9f9;
   margin-top: 10px;
   margin-bottom: 10px;
-  min-width: 400px;
 }
 
 .question-editor .ProseMirror-focused {
   outline: none;
+}
+
+@media (max-width: 768px) {
+  .question-editor {
+    width: 230px;
+  }
+}
+
+@media (min-width: 769px) {
+
+  .question-editor {
+  min-width: 400px;
+  }
 }

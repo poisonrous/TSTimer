@@ -162,10 +162,18 @@ export const DataProvider = ({ children }) => {
         body: JSON.stringify(newUser),
         credentials: 'include',
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al agregar el usuario');
+      }
+
       const addedUser = await response.json();
       setUsers([...users, addedUser]);
+      return addedUser;
     } catch (error) {
       console.error('Error al agregar el usuario:', error);
+      throw error;
     }
   };
 

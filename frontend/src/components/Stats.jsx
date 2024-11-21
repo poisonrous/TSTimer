@@ -15,7 +15,7 @@ const Stats = () => {
   const size = useWindowSize();
   const isMobile = size.width <= 768;
 
-  const pieChartSize = isMobile ? 300 : 250
+  const pieChartSize = 300;
 
   const periods = ["Last 4 weeks", "Last 6 months", "All time"];
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0]);
@@ -24,7 +24,7 @@ const Stats = () => {
     visitors: 0,
     minutesOfMusic: 0,
     countries: [],
-    accuracy: 0,
+    savedPlaylists: 0,
   });
 
   const animateValue = (start, end, duration, callback) => {
@@ -57,7 +57,6 @@ const Stats = () => {
     Swal.close();
   };
 
-
   const handleSelect = (period) => {
     setSelectedPeriod(period);
   };
@@ -75,7 +74,7 @@ const Stats = () => {
         animateValue(0, data.playlistsCreated, 1000, (value) => setStatsData((prevData) => ({ ...prevData, playlistsCreated: value })));
         animateValue(0, data.visitors, 1000, (value) => setStatsData((prevData) => ({ ...prevData, visitors: value })));
         animateValue(0, data.minutesOfMusic, 1000, (value) => setStatsData((prevData) => ({ ...prevData, minutesOfMusic: value })));
-        animateValue(0, data.accuracy, 1000, (value) => setStatsData((prevData) => ({ ...prevData, accuracy: value })));
+        animateValue(0, data.savedPlaylists, 1000, (value) => setStatsData((prevData) => ({ ...prevData, savedPlaylists: value })));
         setStatsData((prevData) => ({ ...prevData, countries: data.countries }));
       } catch (error) {
         console.error('Error al obtener estadísticas:', error);
@@ -88,8 +87,8 @@ const Stats = () => {
   }, [selectedPeriod]);
 
   const pieChartData = [
-    { value: statsData.accuracy, color: "darkslateblue" },
-    { value: 100 - statsData.accuracy, color: "rgba(72, 61, 139, 0.3)" }
+    { value: statsData.savedPlaylists, color: "darkslateblue" },
+    { value: statsData.playlistsCreated - statsData.savedPlaylists, color: "rgba(72, 61, 139, 0.3)" }
   ];
 
   return (
@@ -123,11 +122,15 @@ const Stats = () => {
         </div>
         <div className={'second-row'}>
           <div className={'card'}>
-            <h2>Accuracy</h2>
-            <div
-                className={"custom-pie"}
-                style={{ position: "relative", width: {pieChartSize}, height: {pieChartSize}}}
-            >
+            <h2>Saved Playlists</h2>
+            <div className={"custom-pie"} style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: pieChartSize,
+              height: pieChartSize,
+              position: 'relative'
+            }}>
               <PieChart
                   series={[
                     {
@@ -135,6 +138,7 @@ const Stats = () => {
                       outerRadius: "100%",
                       arcLabel: () => null,
                       data: pieChartData,
+                      cx: 140,
                     },
                   ]}
                   width={pieChartSize}
@@ -145,20 +149,20 @@ const Stats = () => {
                     position: "absolute",
                     top: "50%",
                     left: "50%",
-                    transform: "translate(-120%, -50%)",
+                    transform: "translate(-50%, -50%)",
                     fontSize: "24px",
                     fontWeight: "bold",
                     color: "darkslateblue",
                   }}
               >
-                {statsData.accuracy}%
+                {`${(statsData.savedPlaylists / statsData.playlistsCreated * 100).toFixed(2)}%`}
               </div>
             </div>
           </div>
           <div className={"card"}>
             <h2>Countries</h2>
             <BarChart
-                series={[{ data: statsData.countries.map(item => item.value), color: "darkslateblue" }]}
+                series={[{data: statsData.countries.map(item => item.value), color: "darkslateblue"}]}
                 xAxis={isMobile ? [{
                   data: statsData.countries.map(item => item.label),
                   scaleType: "band",
@@ -181,4 +185,3 @@ const Stats = () => {
 };
 
 export default Stats;
-

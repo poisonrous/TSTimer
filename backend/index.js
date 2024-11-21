@@ -525,30 +525,7 @@ app.get('/api/stats', async (req, res) => {
       { $group: { _id: null, totalDuration: { $sum: '$actualDuration' } } }
     ]);
 
-    const accuracy = await Playlist.aggregate([
-      { $match: { createdAt: { $gte: startDate } } },
-      { $group: {
-          _id: null,
-          averageAccuracy: {
-            $avg: {
-              $min: [
-                {
-                  $multiply: [
-                    {
-                      $divide: [
-                        "$actualDuration",
-                        "$requestedDuration"
-                      ]
-                    },
-                    100
-                  ]
-                },
-                100
-              ]
-            }
-          }
-        }}
-    ]);
+    const savedPlaylists = await Playlist.countDocuments({ createdAt: { $gte: startDate }, saveCount: { $gt: 0 } });
 
     const countriesData = await Visit.aggregate([
       { $match: { timestamp: { $gte: startDate } } },
@@ -565,7 +542,7 @@ app.get('/api/stats', async (req, res) => {
         label: country._id,
         value: country.count
       })),
-      accuracy: accuracy[0] ? Math.min(accuracy[0].averageAccuracy.toFixed(2), 100) : 0
+      savedPlaylists
     };
 
     res.json(statsData);
@@ -578,9 +555,9 @@ app.get('/api/stats', async (req, res) => {
 
 // Ruta para guardar la playlist en la cuenta del usuario
 app.post('/api/save-playlist', async (req, res) => {
+  console.log("guardando playlist id: " + req.body.playlistId);
   const { playlistId, playlistName, description, tracks } = req.body; // Incluimos playlistId en la solicitud
   const accessToken = req.headers.authorization?.split(' ')[1];
-
   try {
     if (!tracks || tracks.length === 0) {
       throw new Error('La lista de canciones está vacía o no se proporcionó.');

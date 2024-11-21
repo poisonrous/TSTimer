@@ -45,7 +45,7 @@ function FaqCrud({ question, answer, isOpen, isNew, onClick, onSave, onDelete, o
     ],
     content: editedQuestion,
     onUpdate: ({ editor }) => {
-      setEditedQuestion(editor.getHTML());
+      setEditedQuestion(editor.getText());
     }
   });
 

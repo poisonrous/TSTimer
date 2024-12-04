@@ -16,6 +16,10 @@ const FAQ = require('./models/faq');
 const User = require('./models/User');
 const login = require('./middleware/auth');
 const bcrypt = require('bcrypt');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 8080 });
 
 app.use(session({
   secret: '767254632',
@@ -35,6 +39,15 @@ const spotifyApi = new SpotifyWebApi({
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
+//Web socket
+wss.on('connection', (ws) => {
+  console.log('Cliente conectado');
+  ws.on('message', (message) => {
+    console.log('Recibido:', message);
+  });
+});
+
 
 //Ruta para recuperar datos del administrador
 app.get('/api/user', async (req, res) => {
@@ -603,8 +616,19 @@ app.get('/api/playlist/:id/save-count', async (req, res) => {
   }
 });
 
-
-// Ruta para crear una playlist
+// Función para hacer scraping y obtener el URL de previsualización
+async function getPreviewUrl(trackUrl) {
+  try {
+    const response = await axios.get(trackUrl);
+    const $ = cheerio.load(response.data);
+    const previewUrl = $('meta[property="og:audio"]').attr('content');
+    return previewUrl;
+  } catch (error) {
+    console.error('Error al hacer scraping:', error);
+    return null;
+  }
+}
+//Ruta para crear la playlist
 app.post('/api/playlist', async (req, res) => {
   const { tiempo } = req.body;
   const playlistId = process.env.SPOTIFY_PLAYLIST_ID;
@@ -644,11 +668,31 @@ app.post('/api/playlist', async (req, res) => {
       }
     }
     res.json(bestCombination);
+
+    // Obtener URLs de previsualización en segundo plano
+    const promises = bestCombination.map(async (track) => {
+      if (!track.preview_url) {
+        track.preview_url = await getPreviewUrl(`https://open.spotify.com/track/${track.spotifyId}`);
+      }
+      return track;
+    });
+    const updatedCombination = await Promise.all(promises);
+
+    // Enviar los URLs de previsualización al cliente WebSocket
+    updatedCombination.forEach(track => {
+      const message = JSON.stringify({ spotifyId: track.spotifyId, preview_url: track.preview_url });
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+    });
   } catch (error) {
     console.error('Error al obtener canciones de la playlist:', error);
     res.status(500).json({ error: 'Error al obtener canciones de la playlist' });
   }
 });
+
 
 // Función para aleatorizar la playlist de referencia
 function shuffleArray(array) {

@@ -4,7 +4,7 @@ import ButtonCreate from "../components/ButtonCreate";
 import Playlist from "../components/Playlist";
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-import App from './app'
+import App from './app';
 
 const Home = () => {
 
@@ -20,7 +20,6 @@ const Home = () => {
   let input;
 
   useEffect(() => {
-
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('access_token');
 
@@ -46,6 +45,24 @@ const Home = () => {
         handleSavePlaylist(accessToken, tracks);
       }
     }
+
+    // Configurar el cliente WebSocket
+    const ws = new WebSocket('ws://localhost:8080');
+    ws.onmessage = function(event) {
+      const message = JSON.parse(event.data);
+      console.log('URL de previsualización recibida:', message.preview_url);
+      setSongs((prevSongs) => prevSongs.map(song =>
+          song.spotifyId === message.spotifyId ? { ...song, preview_url: message.preview_url } : song
+      ));
+    };
+
+    ws.onopen = function() {
+      ws.send('Cliente conectado');
+    };
+
+    return () => {
+      ws.close(); // Cerrar la conexión WebSocket al desmontar el componente
+    };
   }, []);
 
   const sendInput = async (input) => {
@@ -96,7 +113,7 @@ const Home = () => {
     } catch (error) {
       Swal.close();
       console.error('Error al enviar el tiempo al servidor:', error);
-      Swal.fire({ icon: 'error', text: "There's been an eror sending your request... But you can try again." });
+      Swal.fire({ icon: 'error', text: "There's been an error sending your request... But you can try again." });
       setHasError(true);
     }
   };
@@ -122,6 +139,7 @@ const Home = () => {
     }
     // Eliminar setReload(!reload) ya que puede no ser necesario
   };
+
   const handlePostPlaylist = async (tracks, totalDuration) => {
     try {
       const playlistName = 'TSTimer';
@@ -197,6 +215,7 @@ const Home = () => {
 
       const data = await response.json();
       Swal.close(); // Cerrar el indicador de carga
+
       if (data.message) {
         Swal.fire({
           icon: 'success',

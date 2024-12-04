@@ -1,5 +1,5 @@
 import '../stylesheets/Track.css';
-import { FaPlay, FaPause } from 'react-icons/fa'; // Añadir ícono de pausa
+import { FaPlay, FaPause } from 'react-icons/fa';
 import { useState, useRef, useEffect } from 'react';
 
 function Track(props) {
@@ -11,28 +11,52 @@ function Track(props) {
 
     if (isPlaying) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0; // Asegúrate de resetear el tiempo del audio
+      audioRef.current.currentTime = 0; // Resetear el tiempo del audio
       setIsPlaying(false);
+      props.setCurrentPlaying(null); // Actualizar el estado global
     } else {
-      const allAudios = document.getElementsByTagName('audio');
-      for (let audio of allAudios) {
-        audio.pause();
-        audio.currentTime = 0; // Reset audio to the beginning
-      }
+      props.pauseAllTracks(); // Pausar todas las canciones antes de reproducir esta
       audioRef.current.play()
-          .then(() => setIsPlaying(true))
+          .then(() => {
+            setIsPlaying(true);
+            props.setCurrentPlaying(); // Establecer esta pista como la actual en reproducción
+          })
           .catch(error => console.error('Error al reproducir el audio:', error)); // Añadir manejo de error
     }
   };
 
   useEffect(() => {
-    // Detener la reproducción si el componente se desmonta
-    return () => {
-      if (audioRef.current) {
+    if (props.isPlaying !== isPlaying) {
+      setIsPlaying(props.isPlaying);
+      if (!props.isPlaying && audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.currentTime = 0; // Resetear el tiempo del audio
+      }
+    }
+  }, [props.isPlaying]);
+
+  useEffect(() => {
+    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => setIsPlaying(true);
+
+    const audioElement = audioRef.current;
+    if (audioElement) {
+      audioElement.addEventListener('pause', handlePause);
+      audioElement.addEventListener('play', handlePlay);
+    }
+
+    return () => {
+      if (audioElement) {
+        audioElement.removeEventListener('pause', handlePause);
+        audioElement.removeEventListener('play', handlePlay);
       }
     };
   }, []);
+
+  useEffect(() => {
+    // Detener la reproducción si el componente se desmonta
+    setIsPlaying(false);
+  }, [props.name]);
 
   return (
       <div className='track-info'>
@@ -43,7 +67,7 @@ function Track(props) {
           <label className='track-length'>{props.length}</label>
         </div>
         {isPlaying
-            ? <FaPause className='icono-pause' onClick={handlePlayPause} />
+            ? <FaPause className='icono-play' onClick={handlePlayPause} />
             : <FaPlay className='icono-play' onClick={handlePlayPause} />
         }
         <audio ref={audioRef} src={props.previewUrl} preload='auto'></audio>

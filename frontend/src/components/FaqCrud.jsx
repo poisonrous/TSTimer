@@ -14,11 +14,20 @@ function FaqCrud({ question, answer, isOpen, isNew, onClick, onSave, onDelete, o
   const [editedQuestion, setEditedQuestion] = useState(question);
   const [editedAnswer, setEditedAnswer] = useState(answer);
 
+  // Para asegurarnos de que el editor se restablezca al abrirse sin guardar cambios
   useEffect(() => {
     if (!isOpen) {
       setIsEditing(false);
+      setEditedQuestion(question);
+      setEditedAnswer(answer);
+      if (questionEditor) {
+        questionEditor.commands.setContent(question);
+      }
+      if (answerEditor) {
+        answerEditor.commands.setContent(answer);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, question, answer]);
 
   useEffect(() => {
     if (isNew) {
@@ -75,6 +84,12 @@ function FaqCrud({ question, answer, isOpen, isNew, onClick, onSave, onDelete, o
       // Restablecer el contenido original
       setEditedQuestion(question);
       setEditedAnswer(answer);
+      if (questionEditor) {
+        questionEditor.commands.setContent(question);
+      }
+      if (answerEditor) {
+        answerEditor.commands.setContent(answer);
+      }
     }
   };
 

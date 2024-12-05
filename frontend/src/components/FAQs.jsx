@@ -45,6 +45,9 @@ const FAQs = () => {
           title: 'Success',
           text: 'Changes have been saved',
         });
+        if (id === null) {
+          setNewQuestion(false);
+        }
       } else if (id === null) {
         // Si es una nueva pregunta y el usuario cancela, se mantiene el editor abierto.
         setOpenQuestionIndex(faqs.length);

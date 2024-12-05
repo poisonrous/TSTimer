@@ -321,7 +321,7 @@ app.put('/api/user/update-password', async (req, res) => {
 // Ruta para obtener todas las preguntas visibles
 app.get('/api/faqs', async (req, res) => {
   try {
-    const faqs = await FAQ.find({ visible: true, deletedAt: null });
+    const faqs = await FAQ.find({ deletedAt: null });
     res.status(200).json(faqs);
   } catch (error) {
     console.error('Error al obtener las preguntas:', error);

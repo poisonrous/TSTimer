@@ -30,13 +30,14 @@ const Faq = () => {
           <h1>Frequently Asked Questions</h1>
           <p>If your question isn't here, <a href='mailto: abreurosalinda@gmail.com'>contact me</a> and I'll be happy to answer!</p>
           {questions.map((q, index) => (
-              <Question
+              q.visible === true && (  <Question
                   key={index}
                   question={q.question}
                   answer={q.answer}
                   isOpen={openQuestionIndex === index}
                   onClick={() => handleQuestionClick(index)}
               />
+              )
           ))}
         </div>
       </App>

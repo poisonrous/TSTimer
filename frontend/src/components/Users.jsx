@@ -8,6 +8,9 @@ import { IoPhonePortraitOutline } from 'react-icons/io5';
 import { DataContext } from '../context/DataContext';
 
 const Users = () => {
+
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL_LOCAL;
+
   const { users, handleSaveAccess, handleAddUser, fetchUsers, userData } = useContext(DataContext);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -81,7 +84,7 @@ const Users = () => {
 
   const handleDelete = async (userId, password) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/delete`, {
+      const response = await fetch(`${backendUrl}/api/users/${userId}/delete`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -106,7 +109,7 @@ const Users = () => {
         text: "This account has been deleted and you're logging out",
       }).then(() => {
         if (userId === userData._id) {
-          fetch('http://localhost:5000/api/logout', {
+          fetch(`${backendUrl}/api/logout`, {
             method: 'POST',
             credentials: 'include'
           }).then(() => {

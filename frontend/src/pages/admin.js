@@ -3,6 +3,9 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import AdminPanel from './adminPanel';
 
 const Admin = () => {
+
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL_LOCAL;
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState('');
@@ -16,7 +19,7 @@ const Admin = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/check-session', {
+        const response = await fetch(`${backendUrl}/api/check-session`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -69,7 +72,7 @@ const Admin = () => {
     setPasswordError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin-login', {
+      const response = await fetch(`${backendUrl}/api/admin-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

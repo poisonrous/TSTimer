@@ -1,8 +1,12 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
+require('dotenv').config();
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL_LOCAL;
 
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
+
   const [statsData, setStatsData] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState({ stats: true, user: true, faqs: true, users: true });
@@ -26,7 +30,7 @@ export const DataProvider = ({ children }) => {
     console.log("fetching user data");
     setLoading((prev) => ({ ...prev, user: true }));
     try {
-      const response = await fetch('http://localhost:5000/api/user', {
+      const response = await fetch(`${backendUrl}/api/user`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -42,7 +46,7 @@ export const DataProvider = ({ children }) => {
   const fetchUsers = useCallback(async () => {
     setLoading((prev) => ({ ...prev, users: true }));
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch(`${backendUrl}/api/users`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -119,7 +123,7 @@ export const DataProvider = ({ children }) => {
 
   const handleSaveAccess = async (userId, access) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/access`, {
+      const response = await fetch(`${backendUrl}/api/users/${userId}/access`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access }),
@@ -134,7 +138,7 @@ export const DataProvider = ({ children }) => {
 
   const handleDeleteUser = async (userId, password) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/delete`, {
+      const response = await fetch(`${backendUrl}/api/users/${userId}/delete`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -156,7 +160,7 @@ export const DataProvider = ({ children }) => {
 
   const handleAddUser = async (newUser) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch(`${backendUrl}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newUser),

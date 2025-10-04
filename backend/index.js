@@ -34,7 +34,7 @@ connectDB();
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'http://localhost:5000/callback'
+  redirectUri: `${process.env.SPOTIFY_REDIRECT_URI}/callback`
 });
 app.use(morgan('dev'));
 app.use(express.json());

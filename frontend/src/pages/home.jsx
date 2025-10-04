@@ -49,7 +49,7 @@ const Home = () => {
     }
 
     // Configurar el cliente WebSocket
-    const ws = new WebSocket(`ws:${SERVER}:8080`);
+    const ws = new WebSocket(`wss:${SERVER}:8080`);
     ws.onmessage = function(event) {
       const message = JSON.parse(event.data);
       console.log('URL de previsualización recibida:', message.preview_url);

@@ -34,7 +34,7 @@ connectDB();
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  redirectUri: `${process.env.SPOTIFY_REDIRECT_URI}`
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI
 });
 app.use(morgan('dev'));
 app.use(express.json());
@@ -483,7 +483,7 @@ app.get('/api/spotify/token', async (req, res) => {
 // Ruta para iniciar el flujo de autenticación del usuario
 app.get('/login', (req, res) => {
   const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-public', 'playlist-modify-private'];
-  const authorizeURL = spotifyApi.createAuthorizeURL(scopes);
+  const authorizeURL = spotifyApi.createAuthorizeURL(scopes, encodeURIComponent(process.env.FRONTEND_URL));
   res.redirect(authorizeURL);
 });
 
@@ -499,7 +499,8 @@ app.get('/callback', async (req, res) => {
       req.session.accessToken = access_token;
       req.session.refreshToken = refresh_token;
       console.log('Tokens de acceso y actualización obtenidos exitosamente.');
-      res.redirect(`${req.headers.origin}?access_token=${access_token}&refresh_token=${refresh_token}`);
+      const redirectBase = decodeURIComponent(req.query.state || process.env.FRONTEND_URL);
+      res.redirect(`${redirectBase}?access_token=${access_token}&refresh_token=${refresh_token}`);
     } else {
       console.error('La sesión no está disponible.');
       res.redirect('/error');

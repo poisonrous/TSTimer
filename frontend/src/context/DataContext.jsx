@@ -3,6 +3,9 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
+
+  const SERVER = import.meta.env.VITE_SERVER_URL;  
+
   const [statsData, setStatsData] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState({ stats: true, user: true, faqs: true, users: true });
@@ -26,7 +29,7 @@ export const DataProvider = ({ children }) => {
     console.log("fetching user data");
     setLoading((prev) => ({ ...prev, user: true }));
     try {
-      const response = await fetch('http://localhost:5000/api/user', {
+      const response = await fetch(`${SERVER}/api/user`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -42,7 +45,7 @@ export const DataProvider = ({ children }) => {
   const fetchUsers = useCallback(async () => {
     setLoading((prev) => ({ ...prev, users: true }));
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch(`${SERVER}/api/users`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -59,7 +62,7 @@ export const DataProvider = ({ children }) => {
   const fetchFaqs = useCallback(async () => {
     setLoading((prev) => ({ ...prev, faqs: true }));
     try {
-      const response = await fetch('http://localhost:3000/api/faqs');
+      const response = await fetch(`${SERVER}/api/faqs`);
       const data = await response.json();
       setFaqs(data);
     } catch (error) {
@@ -71,7 +74,7 @@ export const DataProvider = ({ children }) => {
 
   const handleSaveFaq = async (id, newQuestion, newAnswer) => {
     try {
-      const response = await fetch(id ? `http://localhost:3000/api/faqs/${id}` : 'http://localhost:3000/api/faqs', {
+      const response = await fetch(id ? `${SERVER}/api/faqs/${id}` : 'http://localhost:5000/api/faqs', {
         method: id ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -92,7 +95,7 @@ export const DataProvider = ({ children }) => {
 
   const handleDeleteFaq = async (id) => {
     try {
-      await fetch(`http://localhost:3000/api/faqs/${id}/delete`, {
+      await fetch(`${SERVER}/api/faqs/${id}/delete`, {
         method: 'PUT'
       });
       setFaqs(faqs.filter(q => q._id !== id));
@@ -103,7 +106,7 @@ export const DataProvider = ({ children }) => {
 
   const handleToggleFaqVisibility = async (id, currentVisibility) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/faqs/${id}/visibility`, {
+      const response = await fetch(`${SERVER}/api/faqs/${id}/visibility`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -119,7 +122,7 @@ export const DataProvider = ({ children }) => {
 
   const handleSaveAccess = async (userId, access) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/access`, {
+      const response = await fetch(`${SERVER}/api/users/${userId}/access`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ access }),
@@ -134,7 +137,7 @@ export const DataProvider = ({ children }) => {
 
   const handleDeleteUser = async (userId, password) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/delete`, {
+      const response = await fetch(`${SERVER}/api/users/${userId}/delete`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -156,7 +159,7 @@ export const DataProvider = ({ children }) => {
 
   const handleAddUser = async (newUser) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch(`${SERVER}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newUser),

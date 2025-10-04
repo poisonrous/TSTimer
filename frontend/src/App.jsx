@@ -19,6 +19,8 @@ function NavigationBarWrapper() {
 }
 
 function App() {
+  const SERVER = import.meta.env.VITE_SERVER_URL;
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const accessToken = urlParams.get('access_token');
@@ -26,7 +28,7 @@ function App() {
 
   useEffect(() => {
     if (!accessToken && !isAuthenticated) { // Solo registrar visita si el usuario no está autenticado
-      fetch('/api/log-visit', { method: 'POST', credentials: 'include' })
+      fetch(`${SERVER}/api/log-visit`, { method: 'POST', credentials: 'include' })
           .then(response => response.json())
           .then(data => console.log(data.message))
           .catch(error => console.error('Error:', error));

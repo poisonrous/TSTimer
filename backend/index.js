@@ -38,7 +38,21 @@ const spotifyApi = new SpotifyWebApi({
 });
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
+//CORS
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("No permitido por CORS"));
+        }
+      },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Stage"],
+    credentials: true
+}));
 
 //Web socket
 wss.on('connection', (ws) => {
@@ -485,7 +499,7 @@ app.get('/callback', async (req, res) => {
       req.session.accessToken = access_token;
       req.session.refreshToken = refresh_token;
       console.log('Tokens de acceso y actualización obtenidos exitosamente.');
-      res.redirect(`http://localhost:3000?access_token=${access_token}&refresh_token=${refresh_token}`);
+      res.redirect(`${req.headers.origin}?access_token=${access_token}&refresh_token=${refresh_token}`);
     } else {
       console.error('La sesión no está disponible.');
       res.redirect('/error');

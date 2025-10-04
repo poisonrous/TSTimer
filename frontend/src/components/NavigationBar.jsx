@@ -30,7 +30,7 @@ function NavigationBar() {
   return (
       <div id="outer-container" className='navigation-bar'>
         <div className='logo-container'>
-          <a href='http://localhost:3000/'>
+          <a href='..'>
             <img
                 src={Logo}
                 className='tstimer-logo'

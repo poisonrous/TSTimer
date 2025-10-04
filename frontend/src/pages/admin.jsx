@@ -3,6 +3,9 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import AdminPanel from './adminPanel';
 
 const Admin = () => {
+    
+  const SERVER = import.meta.env.VITE_SERVER_URL;
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState('');
@@ -16,7 +19,7 @@ const Admin = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/check-session', {
+        const response = await fetch(`${SERVER}/api/check-session`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -69,7 +72,7 @@ const Admin = () => {
     setPasswordError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin-login', {
+      const response = await fetch(`${SERVER}/api/admin-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

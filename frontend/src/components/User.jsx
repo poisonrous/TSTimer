@@ -7,6 +7,9 @@ import PasswordModal from './PasswordModal';
 import { DataContext } from '../context/DataContext';
 
 const User = () => {
+    
+  const SERVER = import.meta.env.VITE_SERVER_URL;
+
   const { userData, loading, fetchUserData } = useContext(DataContext);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -46,7 +49,7 @@ const User = () => {
 
     const updatedUser = { userId, name, username, password };
     try {
-      const response = await fetch('http://localhost:5000/api/user/update-info', {
+      const response = await fetch(`${SERVER}/api/user/update-info`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser),
@@ -90,7 +93,7 @@ const User = () => {
 
     const updatedUser = { userId, email, phone, password };
     try {
-      const response = await fetch('http://localhost:5000/api/user/update-contact', {
+      const response = await fetch(`${SERVER}/api/user/update-contact`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser),
@@ -133,7 +136,7 @@ const User = () => {
 
     const updatedUser = { userId, newPassword, password };
     try {
-      const response = await fetch('http://localhost:5000/api/user/update-password', {
+      const response = await fetch(`${SERVER}/api/user/update-password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser),
@@ -199,7 +202,7 @@ const User = () => {
 
     if (confirmed) {
       try {
-        const response = await fetch(`http://localhost:5000/api/users/${userId}/delete`, {
+        const response = await fetch(`${SERVER}/api/users/${userId}/delete`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password: confirmed }),

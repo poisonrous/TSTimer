@@ -3,13 +3,15 @@ import Question from '../components/Question';
 import App from './app';
 
 const Faq = () => {
+  const SERVER = import.meta.env.VITE_SERVER_URL;
+
   const [openQuestionIndex, setOpenQuestionIndex] = useState(null);
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/faqs');
+        const response = await fetch(`${SERVER}/api/faqs`);
         const data = await response.json();
         setQuestions(data);
       } catch (error) {

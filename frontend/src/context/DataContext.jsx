@@ -74,7 +74,7 @@ export const DataProvider = ({ children }) => {
 
   const handleSaveFaq = async (id, newQuestion, newAnswer) => {
     try {
-      const response = await fetch(id ? `${SERVER}/api/faqs/${id}` : 'http://localhost:5000/api/faqs', {
+      const response = await fetch(`${SERVER}/api/faqs/${id}`, {
         method: id ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json'

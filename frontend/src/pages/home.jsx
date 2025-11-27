@@ -49,10 +49,14 @@ const Home = () => {
     }
 
     // Configurar el cliente WebSocket
-    const ws = new WebSocket(`wss:${SERVER}:8080`);
+    const serverUrl = new URL(SERVER); 
+    const wsHost = serverUrl.hostname;
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsUrl = `${protocol}://${wsHost}:8080`; 
+    const ws = new WebSocket(wsUrl);
+
     ws.onmessage = function(event) {
       const message = JSON.parse(event.data);
-      console.log('URL de previsualización recibida:', message.preview_url);
       setSongs((prevSongs) => prevSongs.map(song =>
           song.spotifyId === message.spotifyId ? { ...song, preview_url: message.preview_url } : song
       ));

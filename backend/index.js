@@ -407,20 +407,37 @@ app.post('/api/post-playlist', async (req, res) => {
     for (const track of tracks) {
       console.log('Procesando track:', track);
       let existingTrack = await Track.findOne({ spotifyId: track.spotifyId });
+      const embedUrl = `https://open.spotify.com/embed/track/${track.spotifyId}`;
 
       if (!existingTrack) {
+
+        let previewUrlToSave = track.preview_url;
+        if (!previewUrlToSave) {
+             console.log(`Track nuevo ${track.name} sin preview. Buscando...`);
+             previewUrlToSave = await getPreviewUrl(embedUrl);
+        }
+        
         const newTrack = new Track({
           name: track.name,
           artist: track.artist,
           duration: track.duration,
           src: track.src,
-          preview_url: track.preview_url,
+          preview_url: previewUrlToSave,
           spotifyId: track.spotifyId
         });
         existingTrack = await newTrack.save();
         console.log('Nuevo track guardado:', existingTrack);
       } else {
-        console.log('Track existente:', existingTrack);
+        if (!existingTrack.preview_url) {
+          console.log(`Track existente ${track.name} sin preview. Buscando...`);
+          const previewUrlToSave = await getPreviewUrl(embedUrl);
+          existingTrack = await Track.findByIdAndUpdate(
+              existingTrack._id,
+              { preview_url: previewUrlToSave },
+              { new: true }
+          );
+          console.log('Track actualizado con preview_url:', existingTrack);
+        } else console.log('Track existente:', existingTrack);
       }
 
       trackIds.push(existingTrack._id);
@@ -635,9 +652,12 @@ app.get('/api/playlist/:id/save-count', async (req, res) => {
 async function getPreviewUrl(trackUrl) {
   try {
     const response = await axios.get(trackUrl);
-    const $ = cheerio.load(response.data);
-    const previewUrl = $('meta[property="og:audio"]').attr('content');
-    return previewUrl;
+    const match = response.data.match(/"audioPreview":\{.*?"url":"(.*?)"/);
+    if (match && match[1]) {
+      return match[1].replace(/\\/g, '');
+      console.log('URL de previsualización obtenida:', match[1].replace(/\\/g, ''));
+    }
+    return null;
   } catch (error) {
     console.error('Error al hacer scraping:', error);
     return null;
@@ -687,7 +707,7 @@ app.post('/api/playlist', async (req, res) => {
     // Obtener URLs de previsualización en segundo plano
     const promises = bestCombination.map(async (track) => {
       if (!track.preview_url) {
-        track.preview_url = await getPreviewUrl(`https://open.spotify.com/track/${track.spotifyId}`);
+        track.preview_url = await getPreviewUrl(`https://open.spotify.com/embed/track/${track.spotifyId}`);
       }
       return track;
     });

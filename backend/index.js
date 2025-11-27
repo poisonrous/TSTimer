@@ -18,8 +18,11 @@ const login = require('./middleware/auth');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const http = require('http');
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
 app.use(session({
   secret: '767254632',
@@ -773,6 +776,6 @@ function findClosestSum(tracks, targetDuration) {
   };
 }
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Servidor backend escuchando en http://localhost:${port}`);
 });

@@ -50,9 +50,9 @@ const Home = () => {
 
     // Configurar el cliente WebSocket
     const serverUrl = new URL(SERVER); 
-    const wsHost = serverUrl.hostname;
+    const wsHost = serverUrl.host;
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const wsUrl = `${protocol}://${wsHost}:8080`; 
+    const wsUrl = `${protocol}://${wsHost}`; 
     const ws = new WebSocket(wsUrl);
 
     ws.onmessage = function(event) {

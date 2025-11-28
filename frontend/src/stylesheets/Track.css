@@ -3,7 +3,8 @@
   display: flex;
   background-color: lightgray;
   min-height: 100px;
-  width: 80%;
+  width: 100%;
+  max-width: 1200px;
   align-items: center;
   padding-left: 10px;
   box-shadow: 2px 2px 2px -1px #3e3769;

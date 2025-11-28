@@ -1,8 +1,8 @@
 .playlist-container {
-  width: auto;
+  width: 100%;
   display: block;
   align-items: center;
-  justify-items: start;
+  justify-items: center;
 }
 
 .playlist-info-container {
@@ -20,7 +20,7 @@
 .playlist {
   display: block;
   align-items: center;
-  justify-items: start;
+  justify-items: center;
   width: 100%;
 }
 

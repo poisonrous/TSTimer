@@ -175,7 +175,7 @@ const Home = () => {
   const handleClickSave = () => {
     localStorage.setItem('tracks', JSON.stringify(songs));
     localStorage.setItem('playlistSaved', 'false'); // Restablecer estado de guardado
-    window.location.href = `${SERVER}/login`; // Redirigir a la autenticación
+    window.location.href = `${SERVER}/api/login`; // Redirigir a la autenticación
   };
 
   const handleSavePlaylist = async (accessToken, tracks) => {

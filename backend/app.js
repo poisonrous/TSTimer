@@ -22,10 +22,10 @@ app.use(express.json());
 
 // Configuración de Sesión
 app.use(session({
-  secret: process.env.SESSION_SECRET || '767254632', // Tu secreto original o variable de entorno
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Pon 'true' si usas HTTPS en producción
+  cookie: { secure: true }
 }));
 
 // Configuración de CORS

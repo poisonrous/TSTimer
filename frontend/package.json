@@ -16,6 +16,7 @@
     "@tiptap/extension-link": "^2.9.1",
     "@tiptap/react": "^2.9.1",
     "@tiptap/starter-kit": "^2.9.1",
+    "@vercel/analytics": "^1.6.1",
     "html-react-parser": "^5.1.16",
     "node": "^22.8.0",
     "react": "^18.3.1",
@@ -28,12 +29,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-      "dev": "vite",
-      "build": "vite build",
-      "preview": "vite preview"
-    }
-    ,
-   "type": "module",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "type": "module",
   "eslintConfig": {
     "extends": [
       "react-app",

@@ -7,6 +7,7 @@ import About from './pages/about';
 import Faq from './pages/faq';
 import Admin from './pages/admin';
 import { useEffect, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 
 function NavigationBarWrapper() {
   const location = useLocation();
@@ -58,6 +59,7 @@ function App() {
           <Route exact path="/r-admin" element={<Admin />} />
         </Routes>
         <Footer />
+        <Analytics />
       </Router>
   );
 }
